@@ -1,9 +1,9 @@
-export * from "./shadows.config";
+export * from './shadows';
 
-export * from "./palette.config";
+export * from './palette';
 
-export * from "./typography.config";
+export * from './typography';
 
-export * from "./components";
+export * from './components';
 
-export * from "./custom-shadows.config";
+export * from './custom-shadows';

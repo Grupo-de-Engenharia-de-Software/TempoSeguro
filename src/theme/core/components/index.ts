@@ -1,46 +1,49 @@
-import { accordion } from "./accordion.component-style";
-import { alert } from "./alert.component-style";
-import { appBar } from "./appbar.component-style";
-import { autocomplete } from "./autocomplete.component-style";
-import { avatar } from "./avatar.component-style";
-import { backdrop } from "./backdrop.component-style";
-import { badge } from "./badge.component-style";
-import { breadcrumbs } from "./breadcrumbs.component-style";
-import { fab } from "./button-fab.component-style";
-import { buttonGroup } from "./button-group.component-style";
-import { toggleButton } from "./button-toggle.component-style";
-import { button } from "./button.component-style";
-import { card } from "./card.component-style";
-import { checkbox } from "./checkbox.component-style";
-import { chip } from "./chip.component-style";
-import { cssBaseline } from "./css-baseline.component-style";
-import { dialog } from "./dialog.component-style";
-import { divider } from "./divider.component-style";
-import { drawer } from "./drawer.component-style";
-import { form } from "./form.component-style";
-import { link } from "./link.component-style";
-import { list } from "./list.component-style";
-import { menu } from "./menu.component-style";
-import { pagination } from "./pagination.component-style";
-import { paper } from "./paper.component-style";
-import { popover } from "./popover.component-style";
-import { progress } from "./progress.component-style";
-import { radio } from "./radio.component-style";
-import { rating } from "./rating.component-style";
-import { select } from "./select.component-style";
-import { skeleton } from "./skeleton.component-style";
-import { slider } from "./slider.component-style";
-import { stack } from "./stack.component-style";
-import { stepper } from "./stepper.component-style";
-import { svgIcon } from "./svg-icon.component-style";
-import { switches } from "./switch.component-style";
-import { table } from "./table.component-style";
-import { tabs } from "./tabs.component-style";
-import { textfield } from "./textfield.component-style";
-import { tooltip } from "./tooltip.component-style";
-import { typography } from "./typography.component-style";
+import { list } from './list';
+import { card } from './card';
+import { menu } from './menu';
+import { chip } from './chip';
+import { link } from './link';
+import { tabs } from './tabs';
+import { form } from './form';
+import { table } from './table';
+import { alert } from './alert';
+import { stack } from './stack';
+import { paper } from './paper';
+import { badge } from './badge';
+import { radio } from './radio';
+import { appBar } from './appbar';
+import { dialog } from './dialog';
+import { avatar } from './avatar';
+import { drawer } from './drawer';
+import { select } from './select';
+import { rating } from './rating';
+import { slider } from './slider';
+import { button } from './button';
+import { fab } from './button-fab';
+import { tooltip } from './tooltip';
+import { popover } from './popover';
+import { stepper } from './stepper';
+import { switches } from './switch';
+import { svgIcon } from './svg-icon';
+import { skeleton } from './skeleton';
+import { backdrop } from './backdrop';
+import { progress } from './progress';
+import { timeline } from './timeline';
+import { checkbox } from './checkbox';
+import { accordion } from './accordion';
+import { textfield } from './textfield';
+import { typography } from './typography';
+import { pagination } from './pagination';
+import { breadcrumbs } from './breadcrumbs';
+import { dataGrid } from './mui-x-data-grid';
+import { treeView } from './mui-x-tree-view';
+import { buttonGroup } from './button-group';
+import { autocomplete } from './autocomplete';
+import { toggleButton } from './button-toggle';
+import { datePicker } from './mui-x-date-picker';
 
 // ----------------------------------------------------------------------
+
 export const components = {
   ...fab,
   ...card,
@@ -65,21 +68,23 @@ export const components = {
   ...select,
   ...button,
   ...stepper,
-  ...divider,
   ...tooltip,
   ...popover,
   ...svgIcon,
   ...skeleton,
+  ...timeline,
   ...backdrop,
   ...progress,
   ...switches,
   ...checkbox,
+  ...treeView,
+  ...dataGrid,
   ...accordion,
   ...textfield,
   ...typography,
   ...pagination,
+  ...datePicker,
   ...breadcrumbs,
-  ...cssBaseline,
   ...buttonGroup,
   ...autocomplete,
   ...toggleButton,
