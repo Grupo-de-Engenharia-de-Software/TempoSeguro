@@ -1,8 +1,7 @@
 import type { Theme } from '@mui/material/styles';
 import type { SettingsState } from 'src/components/settings';
 
-import { experimental_extendTheme as extendTheme } from '@mui/material/styles';
-
+import { extendTheme } from "@mui/material/styles";
 import { setFont } from './styles/utils';
 import { overridesTheme } from './overrides-theme';
 import { shadows, typography, components, colorSchemes, customShadows } from './core';
@@ -24,6 +23,7 @@ export function createTheme(settings: SettingsState): Theme {
     },
     cssVarPrefix: '',
     shouldSkipGeneratingVar,
+    colorSchemeSelector: "data-mui-color-scheme"
   };
 
   /**

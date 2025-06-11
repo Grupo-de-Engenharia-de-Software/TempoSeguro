@@ -60,13 +60,6 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
 
   return (
     <>
-      <NavMobile
-        data={navData}
-        open={mobileNavOpen.value}
-        onClose={mobileNavOpen.onFalse}
-        cssVars={navColorVars.section}
-      />
-
       <LayoutSection
         /** **************************************
          * Header
@@ -78,45 +71,17 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
             onOpenNav={mobileNavOpen.onTrue}
             data={{
               nav: navData,
-              langs: [
-                { value: 'en', label: 'English', countryCode: 'GB' },
-                { value: 'fr', label: 'French', countryCode: 'FR' },
-                { value: 'vi', label: 'Vietnamese', countryCode: 'VN' },
-                { value: 'cn', label: 'Chinese', countryCode: 'CN' },
-                { value: 'ar', label: 'Arabic', countryCode: 'SA' },
-              ],
               account: _account,
               contacts: _contacts,
-              workspaces: _workspaces,
-              notifications: _notifications,
             }}
             slotsDisplay={{
               signIn: false,
-              purchase: false,
-              helpLink: false,
-            }}
-            slots={{
-              topArea: (
-                <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
-                  This is an info Alert.
-                </Alert>
-              ),
-              bottomArea: isNavHorizontal ? (
-                <NavHorizontal
-                  data={navData}
-                  layoutQuery={layoutQuery}
-                  cssVars={navColorVars.section}
-                />
-              ) : null,
             }}
             slotProps={{
               toolbar: {
                 sx: {
                   [`& [data-slot="logo"]`]: {
                     display: 'none',
-                  },
-                  [`& [data-area="right"]`]: {
-                    gap: { xs: 0, sm: 0.75 },
                   },
                   ...(isNavHorizontal && {
                     bgcolor: 'var(--layout-nav-bg)',
@@ -149,25 +114,6 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
               },
             }}
           />
-        }
-        /** **************************************
-         * Sidebar
-         *************************************** */
-        sidebarSection={
-          isNavHorizontal ? null : (
-            <NavVertical
-              data={navData}
-              isNavMini={isNavMini}
-              layoutQuery={layoutQuery}
-              cssVars={navColorVars.section}
-              onToggleNav={() =>
-                settings.onUpdateField(
-                  'navLayout',
-                  settings.navLayout === 'vertical' ? 'mini' : 'vertical'
-                )
-              }
-            />
-          )
         }
         /** **************************************
          * Footer
