@@ -28,6 +28,9 @@
 @import '@fontsource/inter/700.css';
 @import '@fontsource/inter/800.css';
 
+/* Leaflet Map styles */
+@import 'leaflet/dist/leaflet.css';
+
 @import '@fontsource/nunito-sans/400.css';
 @import '@fontsource/nunito-sans/500.css';
 @import '@fontsource/nunito-sans/600.css';
