@@ -14,7 +14,7 @@ export function localStorageAvailable() {
 export function localStorageGetItem(key: string, defaultValue = '') {
   const storageAvailable = localStorageAvailable();
 
-  let value;
+  let value = defaultValue;
 
   if (storageAvailable) {
     value = localStorage.getItem(key) || defaultValue;
