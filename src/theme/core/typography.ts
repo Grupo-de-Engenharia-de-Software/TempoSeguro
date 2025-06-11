@@ -1,4 +1,4 @@
-import type { TypographyOptions } from '@mui/material/styles/createTypography';
+import type { TypographyVariants } from '@mui/material/styles/createTypography';
 
 import { setFont, pxToRem, responsiveFontSizes } from '../styles/utils';
 
@@ -14,6 +14,7 @@ declare module '@mui/material/styles' {
     fontWeightSemiBold?: React.CSSProperties['fontWeight'];
   }
   interface ThemeVars {
+    // biome-ignore lint/correctness/noUndeclaredVariables: <explanation>
     typography: Theme['typography'];
   }
 }
@@ -28,7 +29,7 @@ export const secondaryFont = setFont('Barlow');
 
 // ----------------------------------------------------------------------
 
-export const typography: TypographyOptions = {
+export const typography: TypographyVariants = {
   fontFamily: primaryFont,
   fontSecondaryFamily: secondaryFont,
   fontWeightLight: '300',
@@ -109,4 +110,7 @@ export const typography: TypographyOptions = {
     fontSize: pxToRem(14),
     textTransform: 'unset',
   },
+  fontSize: 14,
+  htmlFontSize: 16,
+  pxToRem,
 };

@@ -27,7 +27,6 @@ import { AnimateAvatar } from 'src/components/animate';
 
 import { useMockedUser } from 'src/auth/hooks';
 
-import { UpgradeBlock } from './nav-upgrade';
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
 
@@ -158,9 +157,9 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
             }}
           >
             {data.map((option) => {
-              const rootLabel = pathname.includes('/dashboard') ? 'Home' : 'Dashboard';
+              const rootLabel = pathname.includes('/map') ? 'Home' : 'Map';
 
-              const rootHref = pathname.includes('/dashboard') ? '/' : paths.dashboard.root;
+              const rootHref = pathname.includes('/map') ? '/' : paths.map.root;
 
               return (
                 <MenuItem
@@ -189,9 +188,6 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
             })}
           </Stack>
 
-          <Box sx={{ px: 2.5, py: 3 }}>
-            <UpgradeBlock />
-          </Box>
         </Scrollbar>
 
         <Box sx={{ p: 2.5 }}>

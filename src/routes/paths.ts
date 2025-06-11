@@ -2,7 +2,7 @@
 
 const ROOTS = {
   AUTH: '/auth',
-  DASHBOARD: '/dashboard',
+  MAP: '/map',
 };
 
 // ----------------------------------------------------------------------
@@ -41,15 +41,7 @@ export const paths = {
     },
   },
   // DASHBOARD
-  dashboard: {
-    root: ROOTS.DASHBOARD,
-    map: `${ROOTS.DASHBOARD}/map`,
-    two: `${ROOTS.DASHBOARD}/two`,
-    three: `${ROOTS.DASHBOARD}/three`,
-    group: {
-      root: `${ROOTS.DASHBOARD}/group`,
-      five: `${ROOTS.DASHBOARD}/group/five`,
-      six: `${ROOTS.DASHBOARD}/group/six`,
-    },
+  map: {
+    root: ROOTS.MAP,
   },
 };

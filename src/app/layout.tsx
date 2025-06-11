@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: Props) {
             <ThemeProvider>
               <MotionLazy>
                 <ProgressBar />
-                <SettingsDrawer />
+                <SettingsDrawer hidePresets hideDirection hideFont hideNavColor hideNavLayout />
                 {children}
               </MotionLazy>
             </ThemeProvider>
