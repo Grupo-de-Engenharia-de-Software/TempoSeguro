@@ -61,9 +61,9 @@ export default function MapView() {
         Mapa de Riscos
       </Typography>
       <Box sx={{ flex: 1, position: 'relative' }}>
-        <MapContainer center={defaultPosition} zoom={13} style={{ height: '100%', width: '100%' }}>
+        <MapContainer center={defaultPosition} zoom={13} style={{ height: 500, width: '100%' }}>
           <TileLayer
-            attribution="&copy; OpenStreetMap contributors"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           {markers.map((m, idx) => (
