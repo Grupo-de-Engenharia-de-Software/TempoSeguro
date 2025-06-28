@@ -2,7 +2,7 @@ import { paths } from 'src/routes/paths';
 
 import axios from 'src/utils/axios';
 
-import { STORAGE_KEY } from './constant';
+import { IS_ADMIN_STORAGE_KEY, STORAGE_KEY } from './constant';
 
 // ----------------------------------------------------------------------
 
@@ -59,6 +59,7 @@ export function tokenExpired(exp: number) {
     try {
       alert('Token expired!');
       sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(IS_ADMIN_STORAGE_KEY);
       window.location.href = paths.auth.jwt.signIn;
     } catch (error) {
       console.error('Error during token expiration:', error);
@@ -69,10 +70,11 @@ export function tokenExpired(exp: number) {
 
 // ----------------------------------------------------------------------
 
-export async function setSession(accessToken: string | null) {
+export async function setSession(accessToken: string | null, admin: boolean) {
   try {
     if (accessToken) {
       sessionStorage.setItem(STORAGE_KEY, accessToken);
+      sessionStorage.setItem(IS_ADMIN_STORAGE_KEY, String(admin));
 
       axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
@@ -85,6 +87,7 @@ export async function setSession(accessToken: string | null) {
       }
     } else {
       sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(IS_ADMIN_STORAGE_KEY);
       delete axios.defaults.headers.common.Authorization;
     }
   } catch (error) {

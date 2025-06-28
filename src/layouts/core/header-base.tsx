@@ -5,15 +5,13 @@ import { styled } from '@mui/material/styles';
 
 import { Logo } from 'src/components/logo';
 
-import { HeaderSection } from './header-section';
-import { SignInButton } from '../components/sign-in-button';
 import { AccountDrawer } from '../components/account-drawer';
 import { SettingsButton } from '../components/settings-button';
+import { SignInButton } from '../components/sign-in-button';
+import { HeaderSection } from './header-section';
 
-import type { HeaderSectionProps } from './header-section';
 import type { AccountDrawerProps } from '../components/account-drawer';
-import type { ContactsPopoverProps } from '../components/contacts-popover';
-import type { WorkspacesPopoverProps } from '../components/workspaces-popover';
+import type { HeaderSectionProps } from './header-section';
 
 // ----------------------------------------------------------------------
 
@@ -49,8 +47,6 @@ export type HeaderBaseProps = HeaderSectionProps & {
   data?: {
     nav?: NavSectionProps['data'];
     account?: AccountDrawerProps['data'];
-    contacts?: ContactsPopoverProps['data'];
-    workspaces?: WorkspacesPopoverProps['data'];
   };
   slotsDisplay?: {
     signIn?: boolean;

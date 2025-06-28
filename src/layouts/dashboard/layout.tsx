@@ -1,33 +1,26 @@
-'use client';
+"use client";
 
-import type { SettingsState } from 'src/components/settings';
-import type { NavSectionProps } from 'src/components/nav-section';
-import type { Theme, SxProps, CSSObject, Breakpoint } from '@mui/material/styles';
+import type { Breakpoint, CSSObject, SxProps, Theme } from "@mui/material/styles";
+import type { NavSectionProps } from "src/components/nav-section";
+import type { SettingsState } from "src/components/settings";
 
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
-import Alert from '@mui/material/Alert';
-import { useTheme } from '@mui/material/styles';
-import { iconButtonClasses } from '@mui/material/IconButton';
+import { iconButtonClasses } from "@mui/material/IconButton";
+import { useTheme } from "@mui/material/styles";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
+import { stylesMode, varAlpha } from "src/theme/styles";
 
-import { _contacts, _notifications } from 'src/_mock';
-import { varAlpha, stylesMode } from 'src/theme/styles';
+import { bulletColor } from "src/components/nav-section";
+import { useSettingsContext } from "src/components/settings";
 
-import { bulletColor } from 'src/components/nav-section';
-import { useSettingsContext } from 'src/components/settings';
-
-import { Main } from './main';
-import { NavMobile } from './nav-mobile';
-import { layoutClasses } from '../classes';
-import { NavVertical } from './nav-vertical';
-import { NavHorizontal } from './nav-horizontal';
-import { _account } from '../config-nav-account';
-import { HeaderBase } from '../core/header-base';
-import { _workspaces } from '../config-nav-workspace';
-import { LayoutSection } from '../core/layout-section';
-import { navData as dashboardNavData } from '../config-nav-dashboard';
+import { layoutClasses } from "../classes";
+import { _account } from "../config-nav-account";
+import { navData as dashboardNavData } from "../config-nav-dashboard";
+import { HeaderBase } from "../core/header-base";
+import { LayoutSection } from "../core/layout-section";
+import { Main } from "./main";
 
 // ----------------------------------------------------------------------
 
@@ -35,7 +28,7 @@ export type DashboardLayoutProps = {
   sx?: SxProps<Theme>;
   children: React.ReactNode;
   data?: {
-    nav?: NavSectionProps['data'];
+    nav?: NavSectionProps["data"];
   };
 };
 
@@ -48,15 +41,15 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
 
   const navColorVars = useNavColorVars(theme, settings);
 
-  const layoutQuery: Breakpoint = 'lg';
+  const layoutQuery: Breakpoint = "lg";
 
   const navData = data?.nav ?? dashboardNavData;
 
-  const isNavMini = settings.navLayout === 'mini';
+  const isNavMini = settings.navLayout === "mini";
 
-  const isNavHorizontal = settings.navLayout === 'horizontal';
+  const isNavHorizontal = settings.navLayout === "horizontal";
 
-  const isNavVertical = isNavMini || settings.navLayout === 'vertical';
+  const isNavVertical = isNavMini || settings.navLayout === "vertical";
 
   return (
     <>
@@ -72,7 +65,6 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
             data={{
               nav: navData,
               account: _account,
-              contacts: _contacts,
             }}
             slotsDisplay={{
               signIn: false,
@@ -81,26 +73,26 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
               toolbar: {
                 sx: {
                   [`& [data-slot="logo"]`]: {
-                    display: 'none',
+                    display: "none",
                   },
                   ...(isNavHorizontal && {
-                    bgcolor: 'var(--layout-nav-bg)',
+                    bgcolor: "var(--layout-nav-bg)",
                     [`& .${iconButtonClasses.root}`]: {
-                      color: 'var(--layout-nav-text-secondary-color)',
+                      color: "var(--layout-nav-text-secondary-color)",
                     },
                     [theme.breakpoints.up(layoutQuery)]: {
-                      height: 'var(--layout-nav-horizontal-height)',
+                      height: "var(--layout-nav-horizontal-height)",
                     },
                     [`& [data-slot="workspaces"]`]: {
-                      color: 'var(--layout-nav-text-primary-color)',
+                      color: "var(--layout-nav-text-primary-color)",
                     },
                     [`& [data-slot="logo"]`]: {
-                      display: 'none',
-                      [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
+                      display: "none",
+                      [theme.breakpoints.up(layoutQuery)]: { display: "inline-flex" },
                     },
                     [`& [data-slot="divider"]`]: {
                       [theme.breakpoints.up(layoutQuery)]: {
-                        display: 'flex',
+                        display: "flex",
                       },
                     },
                   }),
@@ -124,23 +116,23 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
          *************************************** */
         cssVars={{
           ...navColorVars.layout,
-          '--layout-transition-easing': 'linear',
-          '--layout-transition-duration': '120ms',
-          '--layout-nav-mini-width': '88px',
-          '--layout-nav-vertical-width': '300px',
-          '--layout-nav-horizontal-height': '64px',
-          '--layout-dashboard-content-pt': theme.spacing(1),
-          '--layout-dashboard-content-pb': theme.spacing(8),
-          '--layout-dashboard-content-px': theme.spacing(5),
+          "--layout-transition-easing": "linear",
+          "--layout-transition-duration": "120ms",
+          "--layout-nav-mini-width": "88px",
+          "--layout-nav-vertical-width": "300px",
+          "--layout-nav-horizontal-height": "64px",
+          "--layout-dashboard-content-pt": theme.spacing(1),
+          "--layout-dashboard-content-pb": theme.spacing(8),
+          "--layout-dashboard-content-px": theme.spacing(5),
         }}
         sx={{
           [`& .${layoutClasses.hasSidebar}`]: {
             [theme.breakpoints.up(layoutQuery)]: {
-              transition: theme.transitions.create(['padding-left'], {
-                easing: 'var(--layout-transition-easing)',
-                duration: 'var(--layout-transition-duration)',
+              transition: theme.transitions.create(["padding-left"], {
+                easing: "var(--layout-transition-easing)",
+                duration: "var(--layout-transition-duration)",
               }),
-              pl: isNavMini ? 'var(--layout-nav-mini-width)' : 'var(--layout-nav-vertical-width)',
+              pl: isNavMini ? "var(--layout-nav-mini-width)" : "var(--layout-nav-vertical-width)",
             },
           },
           ...sx,
@@ -154,62 +146,59 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
 
 // ----------------------------------------------------------------------
 
-function useNavColorVars(
-  theme: Theme,
-  settings: SettingsState
-): Record<'layout' | 'section', CSSObject> {
+function useNavColorVars(theme: Theme, settings: SettingsState): Record<"layout" | "section", CSSObject> {
   const {
     vars: { palette },
   } = theme;
 
   return useMemo(() => {
     switch (settings.navColor) {
-      case 'integrate':
+      case "integrate":
         return {
           layout: {
-            '--layout-nav-bg': palette.background.default,
-            '--layout-nav-horizontal-bg': varAlpha(palette.background.defaultChannel, 0.8),
-            '--layout-nav-border-color': varAlpha(palette.grey['500Channel'], 0.12),
-            '--layout-nav-text-primary-color': palette.text.primary,
-            '--layout-nav-text-secondary-color': palette.text.secondary,
-            '--layout-nav-text-disabled-color': palette.text.disabled,
+            "--layout-nav-bg": palette.background.default,
+            "--layout-nav-horizontal-bg": varAlpha(palette.background.defaultChannel, 0.8),
+            "--layout-nav-border-color": varAlpha(palette.grey["500Channel"], 0.12),
+            "--layout-nav-text-primary-color": palette.text.primary,
+            "--layout-nav-text-secondary-color": palette.text.secondary,
+            "--layout-nav-text-disabled-color": palette.text.disabled,
             [stylesMode.dark]: {
-              '--layout-nav-border-color': varAlpha(palette.grey['500Channel'], 0.08),
-              '--layout-nav-horizontal-bg': varAlpha(palette.background.defaultChannel, 0.96),
+              "--layout-nav-border-color": varAlpha(palette.grey["500Channel"], 0.08),
+              "--layout-nav-horizontal-bg": varAlpha(palette.background.defaultChannel, 0.96),
             },
           },
           section: {},
         };
-      case 'apparent':
+      case "apparent":
         return {
           layout: {
-            '--layout-nav-bg': palette.grey[900],
-            '--layout-nav-horizontal-bg': varAlpha(palette.grey['900Channel'], 0.96),
-            '--layout-nav-border-color': 'transparent',
-            '--layout-nav-text-primary-color': palette.common.white,
-            '--layout-nav-text-secondary-color': palette.grey[500],
-            '--layout-nav-text-disabled-color': palette.grey[600],
+            "--layout-nav-bg": palette.grey[900],
+            "--layout-nav-horizontal-bg": varAlpha(palette.grey["900Channel"], 0.96),
+            "--layout-nav-border-color": "transparent",
+            "--layout-nav-text-primary-color": palette.common.white,
+            "--layout-nav-text-secondary-color": palette.grey[500],
+            "--layout-nav-text-disabled-color": palette.grey[600],
             [stylesMode.dark]: {
-              '--layout-nav-bg': palette.grey[800],
-              '--layout-nav-horizontal-bg': varAlpha(palette.grey['800Channel'], 0.8),
+              "--layout-nav-bg": palette.grey[800],
+              "--layout-nav-horizontal-bg": varAlpha(palette.grey["800Channel"], 0.8),
             },
           },
           section: {
             // caption
-            '--nav-item-caption-color': palette.grey[600],
+            "--nav-item-caption-color": palette.grey[600],
             // subheader
-            '--nav-subheader-color': palette.grey[600],
-            '--nav-subheader-hover-color': palette.common.white,
+            "--nav-subheader-color": palette.grey[600],
+            "--nav-subheader-hover-color": palette.common.white,
             // item
-            '--nav-item-color': palette.grey[500],
-            '--nav-item-root-active-color': palette.primary.light,
-            '--nav-item-root-open-color': palette.common.white,
+            "--nav-item-color": palette.grey[500],
+            "--nav-item-root-active-color": palette.primary.light,
+            "--nav-item-root-open-color": palette.common.white,
             // bullet
-            '--nav-bullet-light-color': bulletColor.dark,
+            "--nav-bullet-light-color": bulletColor.dark,
             // sub
-            ...(settings.navLayout === 'vertical' && {
-              '--nav-item-sub-active-color': palette.common.white,
-              '--nav-item-sub-open-color': palette.common.white,
+            ...(settings.navLayout === "vertical" && {
+              "--nav-item-sub-active-color": palette.common.white,
+              "--nav-item-sub-open-color": palette.common.white,
             }),
           },
         };
