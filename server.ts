@@ -7,6 +7,14 @@ import next from "next";
 import pkg from "next/package.json";
 import { Server as IOServer } from "socket.io";
 
+type Marker = {
+  position: [number, number];
+  title: string;
+  description?: string;
+};
+
+const markers: Marker[] = [];
+
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "0.0.0.0";
 const port = parseInt(process.env.PORT || "3000", 10);
@@ -61,6 +69,20 @@ app.prepare().then(() => {
   });
   io.on("connection", (socket) => {
     console.log("⚡️  client connected:", socket.id);
+
+    // Envia os marcadores atuais ao novo cliente
+    socket.emit("markers", markers);
+
+    // Cliente solicita lista de marcadores
+    socket.on("get-markers", () => {
+      socket.emit("markers", markers);
+    });
+
+    // Recebe novo marcador e avisa a todos
+    socket.on("new-marker", (marker: Marker) => {
+      markers.push(marker);
+      io.emit("markers", markers);
+    });
   });
 
   httpServer.listen(port, hostname, () => {

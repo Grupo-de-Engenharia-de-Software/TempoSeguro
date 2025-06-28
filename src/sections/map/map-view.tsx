@@ -8,6 +8,7 @@ import SecurityUpdateWarningRoundedIcon from '@mui/icons-material/SecurityUpdate
 import { Fab } from "@mui/material";
 import { useEffect, useState } from "react";
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { socket } from "../../socket";
 import { ModalAlerts } from "./modal-alerts.component";
 
 const defaultPosition: [number, number] = [-30.0346, -51.2177];
@@ -59,9 +60,28 @@ function LocateUser() {
 
 export default function MapView() {
   const [addingPos, setAddingPos] = useState<[number, number] | null>(null);
+  const [markers, setMarkers] = useState<MarkerData[]>([]);
+
+  useEffect(() => {
+    const handleMarkers = (data: MarkerData[]) => setMarkers(data);
+    socket.on("markers", handleMarkers);
+
+    socket.emit("get-markers");
+
+    return () => {
+      socket.off("markers", handleMarkers);
+    };
+  }, []);
 
   const handleAdd = (pos: [number, number]) => {
     setAddingPos(pos);
+  };
+
+  const handleSave = (type: string) => {
+    if (!addingPos) return;
+    const newMarker: MarkerData = { position: addingPos, title: type, description: "" };
+    socket.emit("new-marker", newMarker);
+    setAddingPos(null);
   };
 
 
@@ -75,6 +95,12 @@ export default function MapView() {
 
         {/* marcador da localização do usuário */}
         <LocateUser />
+
+        {markers.map((m, idx) => (
+          <CircleMarker key={idx} center={m.position} radius={8}>
+            <Popup>{m.title}</Popup>
+          </CircleMarker>
+        ))}
 
         <AddMarker onAdd={handleAdd} />
       </MapContainer>
@@ -91,7 +117,7 @@ export default function MapView() {
       >
         <SecurityUpdateWarningRoundedIcon/>
       </Fab>
-      <ModalAlerts handleClose={() => setAddingPos(null)} position={addingPos} onSave={() => {}} />
+      <ModalAlerts handleClose={() => setAddingPos(null)} position={addingPos} onSave={handleSave} />
     </Box>
   );
 }
