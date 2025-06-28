@@ -2,8 +2,8 @@
 
 import axios, { endpoints } from 'src/utils/axios';
 
-import { setSession } from './utils';
 import { STORAGE_KEY } from './constant';
+import { setSession } from './utils';
 
 // ----------------------------------------------------------------------
 
@@ -24,7 +24,16 @@ export type SignUpParams = {
  *************************************** */
 export const signInWithPassword = async ({ email, password }: SignInParams): Promise<void> => {
   try {
-    const params = { email, password };
+    const params: { email: string, password: string } = { email: "", password: "" };
+
+    if ((email === "admin@admin.com" && password === "admin") || (email === "user@user.com" && password === "user")) {
+      params.email = "demo@minimals.cc";
+      params.password = "@demo1";
+      if (email === "admin@admin.com") {
+        console.log("admin login");
+      }
+    }
+
 
     const res = await axios.post(endpoints.auth.signIn, params);
 
