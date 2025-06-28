@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import TextField from '@mui/material/TextField';
 import L from 'leaflet';
+import { useEffect, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet';
 
 
 const defaultPosition: [number, number] = [-30.0346, -51.2177];
@@ -55,7 +55,7 @@ export default function MapView() {
 
   return (
       <Box sx={{ flex: 1, position: 'relative' }}>
-        <MapContainer center={defaultPosition} zoom={13} style={{ height: 500, width: '100%' }}>
+        <MapContainer center={defaultPosition} zoom={13} style={{ height: "calc(100vh - 64px)", width: '100%' }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

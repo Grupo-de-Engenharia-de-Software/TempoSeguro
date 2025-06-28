@@ -82,8 +82,8 @@ export function HeaderBase({
             {slots?.leftAreaStart}
 
             {/* -- Logo -- */}
-            <Logo data-slot="logo" />
-
+            <Logo />
+            
             {/* -- Divider -- */}
             <StyledDivider data-slot="divider" />
 
