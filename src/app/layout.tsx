@@ -33,6 +33,12 @@ export default async function RootLayout({ children }: Props) {
 
   return (
     <html lang="en" suppressHydrationWarning>
+
+      <head>
+        <script src="https://kit.fontawesome.com/f88423a809.js" crossOrigin="anonymous"></script>
+        <link rel="stylesheet" href="leaflet.awesome-markers.css"></link>
+      </head>
+
       <body>
         {getInitColorSchemeScript}
 

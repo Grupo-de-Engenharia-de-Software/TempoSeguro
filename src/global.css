@@ -30,6 +30,8 @@
 
 /* Leaflet Map styles */
 @import 'leaflet/dist/leaflet.css';
+@import 'leaflet.awesome-markers/dist/leaflet.awesome-markers.css';
+@import '@fortawesome/fontawesome-free/css/all.css';
 
 @import '@fontsource/nunito-sans/400.css';
 @import '@fontsource/nunito-sans/500.css';
