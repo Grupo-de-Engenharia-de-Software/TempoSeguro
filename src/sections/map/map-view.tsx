@@ -2,7 +2,10 @@
 
 import Box from "@mui/material/Box";
 import L from "leaflet";
+window.L = L; // necessário para o Leaflet funcionar corretamente com o React
 import "leaflet.awesome-markers";
+import SecurityUpdateWarningRoundedIcon from '@mui/icons-material/SecurityUpdateWarningRounded';
+import { Fab } from "@mui/material";
 import { useEffect, useState } from "react";
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { ModalAlerts } from "./modal-alerts.component";
@@ -64,7 +67,7 @@ export default function MapView() {
 
   return (
     <Box sx={{ flex: 1, position: "relative" }}>
-      <MapContainer center={defaultPosition} zoom={13} style={{ height: "calc(100vh - 64px)", width: "100%" }}>
+      <MapContainer center={defaultPosition} zoom={13} style={{ height: "calc(100vh - 72px)", width: "100%" }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -73,28 +76,21 @@ export default function MapView() {
         {/* marcador da localização do usuário */}
         <LocateUser />
 
-        {/* {markers.map((m, idx) => (
-          <Marker
-            key={idx}
-            position={m.position}
-            icon={L.icon({
-              iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-            })}
-          >
-            <Popup>
-              <strong>{m.title}</strong>
-              <br />
-              {m.description}
-            </Popup>
-          </Marker>
-        ))} */}
-
         <AddMarker onAdd={handleAdd} />
       </MapContainer>
-
+      <Fab
+        color="secondary"
+        size="large"
+        onClick={() => setAddingPos(defaultPosition)} 
+        sx={{
+          position: "fixed",
+          bottom: 16,
+          right: 16,
+          zIndex: 1000,
+        }}
+      >
+        <SecurityUpdateWarningRoundedIcon/>
+      </Fab>
       <ModalAlerts handleClose={() => setAddingPos(null)} position={addingPos} onSave={() => {}} />
     </Box>
   );
