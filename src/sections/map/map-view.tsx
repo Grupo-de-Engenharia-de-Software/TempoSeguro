@@ -5,11 +5,9 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 
-import { DashboardContent } from 'src/layouts/dashboard';
 
 const defaultPosition: [number, number] = [-30.0346, -51.2177];
 
@@ -56,10 +54,6 @@ export default function MapView() {
   };
 
   return (
-    <DashboardContent maxWidth="xl" sx={{ height: 1 }}>
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        Mapa de Riscos
-      </Typography>
       <Box sx={{ flex: 1, position: 'relative' }}>
         <MapContainer center={defaultPosition} zoom={13} style={{ height: 500, width: '100%' }}>
           <TileLayer
@@ -105,6 +99,5 @@ export default function MapView() {
           </Box>
         )}
       </Box>
-    </DashboardContent>
   );
 }
