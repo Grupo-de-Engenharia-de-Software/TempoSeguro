@@ -1,15 +1,15 @@
 'use client';
 
-import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
+import type { Breakpoint, SxProps, Theme } from '@mui/material/styles';
 
 import Alert from '@mui/material/Alert';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { Section } from './section';
-import { Main, Content } from './main';
 import { HeaderBase } from '../core/header-base';
 import { LayoutSection } from '../core/layout-section';
+import { Content, Main } from './main';
+import { Section } from './section';
 
 // ----------------------------------------------------------------------
 
@@ -41,13 +41,6 @@ export function AuthSplitLayout({ sx, section, children }: AuthSplitLayoutProps)
           slotsDisplay={{
             signIn: false,
             account: false,
-            purchase: false,
-            contacts: false,
-            searchbar: false,
-            workspaces: false,
-            menuButton: false,
-            localization: false,
-            notifications: false,
           }}
           slots={{
             topArea: (

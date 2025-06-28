@@ -4,13 +4,13 @@ import type { Breakpoint } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Tooltip from '@mui/material/Tooltip';
-import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
 
 import { RouterLink } from 'src/routes/components';
 
 import { CONFIG } from 'src/config-global';
-import { varAlpha, bgGradient } from 'src/theme/styles';
+import { bgGradient, varAlpha } from 'src/theme/styles';
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ export function Section({
   layoutQuery,
   methods,
   title = 'Manage the job',
-  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/illustration-dashboard.webp`,
+  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/characters/character-10.webp`,
   subtitle = 'More effectively with optimized workflows.',
   ...other
 }: SectionProps) {
@@ -80,7 +80,7 @@ export function Section({
         component="img"
         alt="Dashboard illustration"
         src={imgUrl}
-        sx={{ width: 1, aspectRatio: '4/3', objectFit: 'cover' }}
+        sx={{ width: .4,  objectFit: 'cover' }}
       />
 
       {!!methods?.length && method && (

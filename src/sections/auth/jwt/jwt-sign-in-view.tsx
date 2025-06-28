@@ -82,7 +82,7 @@ export function JwtSignInView() {
 
   const renderHead = (
     <Stack spacing={1.5} sx={{ mb: 5 }}>
-      <Typography variant="h5">Entre na sua conta</Typography>
+      <Typography variant="h5">Sign in</Typography>
     </Stack>
   );
 
@@ -135,7 +135,7 @@ export function JwtSignInView() {
         }}
       >
         Use <strong>user@user.com</strong>
-        {" com a senha "}
+        {" with password "}
         <strong>user</strong>
       </Alert>
       <Alert
@@ -147,7 +147,7 @@ export function JwtSignInView() {
         }}
       >
         Use <strong>admin@admin.com</strong>
-        {" com a senha "}
+        {" with password "}
         <strong>admin</strong>
       </Alert>
 
