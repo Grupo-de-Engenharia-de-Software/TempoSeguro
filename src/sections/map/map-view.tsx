@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import L from "leaflet";
 import "leaflet.awesome-markers";
 import { useEffect, useState } from "react";
-import { CircleMarker, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { ModalAlerts } from "./modal-alerts.component";
 
 const defaultPosition: [number, number] = [-30.0346, -51.2177];
@@ -55,31 +55,12 @@ function LocateUser() {
 }
 
 export default function MapView() {
-  const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [addingPos, setAddingPos] = useState<[number, number] | null>(null);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-
-  useEffect(() => {
-    const stored = localStorage.getItem("ts_markers");
-    if (stored) setMarkers(JSON.parse(stored));
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("ts_markers", JSON.stringify(markers));
-  }, [markers]);
 
   const handleAdd = (pos: [number, number]) => {
     setAddingPos(pos);
   };
 
-  const handleSave = () => {
-    if (!addingPos) return;
-    setMarkers((prev) => [...prev, { position: addingPos, title, description }]);
-    setAddingPos(null);
-    setTitle("");
-    setDescription("");
-  };
 
   return (
     <Box sx={{ flex: 1, position: "relative" }}>
@@ -92,7 +73,7 @@ export default function MapView() {
         {/* marcador da localização do usuário */}
         <LocateUser />
 
-        {markers.map((m, idx) => (
+        {/* {markers.map((m, idx) => (
           <Marker
             key={idx}
             position={m.position}
@@ -109,7 +90,7 @@ export default function MapView() {
               {m.description}
             </Popup>
           </Marker>
-        ))}
+        ))} */}
 
         <AddMarker onAdd={handleAdd} />
       </MapContainer>
