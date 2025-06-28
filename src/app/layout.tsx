@@ -1,25 +1,25 @@
-import 'src/global.css';
+import "src/global.css";
 
 // ----------------------------------------------------------------------
 
-import type { Viewport } from 'next';
+import type { Viewport } from "next";
 
-import { CONFIG } from 'src/config-global';
-import { primary } from 'src/theme/core/palette';
-import { ThemeProvider } from 'src/theme/theme-provider';
-import { getInitColorSchemeScript } from 'src/theme/color-scheme-script';
+import { CONFIG } from "src/config-global";
+import { getInitColorSchemeScript } from "src/theme/color-scheme-script";
+import { primary } from "src/theme/core/palette";
+import { ThemeProvider } from "src/theme/theme-provider";
 
-import { ProgressBar } from 'src/components/progress-bar';
-import { MotionLazy } from 'src/components/animate/motion-lazy';
-import { detectSettings } from 'src/components/settings/server';
-import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
+import { MotionLazy } from "src/components/animate/motion-lazy";
+import { ProgressBar } from "src/components/progress-bar";
+import { SettingsDrawer, SettingsProvider, defaultSettings } from "src/components/settings";
+import { detectSettings } from "src/components/settings/server";
 
-import { AuthProvider } from 'src/auth/context/jwt';
+import { AuthProvider } from "src/auth/context/jwt";
 
 // ----------------------------------------------------------------------
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   themeColor: primary.main,
 };
@@ -37,10 +37,7 @@ export default async function RootLayout({ children }: Props) {
         {getInitColorSchemeScript}
 
         <AuthProvider>
-          <SettingsProvider
-            settings={settings}
-            caches={CONFIG.isStaticExport ? 'localStorage' : 'cookie'}
-          >
+          <SettingsProvider settings={settings} caches={CONFIG.isStaticExport ? "localStorage" : "cookie"}>
             <ThemeProvider>
               <MotionLazy>
                 <ProgressBar />
