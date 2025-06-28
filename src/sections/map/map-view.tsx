@@ -1,13 +1,11 @@
 "use client";
 
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import L from "leaflet";
-import 'leaflet.awesome-markers';  
+import "leaflet.awesome-markers";
 import { useEffect, useState } from "react";
-import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { CircleMarker, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { ModalAlerts } from "./modal-alerts.component";
 
 const defaultPosition: [number, number] = [-30.0346, -51.2177];
 
@@ -50,18 +48,9 @@ function LocateUser() {
 
   if (!pos) return null;
   return (
-    <Marker
-      position={pos}
-      icon={
-        new L.AwesomeMarkers.Icon({
-          icon: "location-crosshairs",
-          markerColor: "blue",
-          prefix: "fa"
-        })
-      }
-    >
+    <CircleMarker center={pos} radius={8}>
       <Popup>Você está aqui</Popup>
-    </Marker>
+    </CircleMarker>
   );
 }
 
@@ -125,38 +114,7 @@ export default function MapView() {
         <AddMarker onAdd={handleAdd} />
       </MapContainer>
 
-      {addingPos && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: 16,
-            left: 16,
-            p: 2,
-            bgcolor: "background.paper",
-            borderRadius: 1,
-            boxShadow: 3,
-            zIndex: 1000,
-          }}
-        >
-          <Stack spacing={1}>
-            <TextField label="Título" value={title} onChange={(e) => setTitle(e.target.value)} fullWidth />
-            <TextField
-              label="Descrição"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              fullWidth
-            />
-            <Stack direction="row" spacing={1}>
-              <Button variant="contained" onClick={handleSave} disabled={!title}>
-                Salvar
-              </Button>
-              <Button variant="outlined" onClick={() => setAddingPos(null)}>
-                Cancelar
-              </Button>
-            </Stack>
-          </Stack>
-        </Box>
-      )}
+      <ModalAlerts handleClose={() => setAddingPos(null)} position={addingPos} onSave={() => {}} />
     </Box>
   );
 }

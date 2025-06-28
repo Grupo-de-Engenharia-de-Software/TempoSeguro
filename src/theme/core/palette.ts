@@ -1,7 +1,7 @@
 import type { ColorSystemOptions } from '@mui/material/styles';
 
+import { createPaletteChannel, varAlpha } from '../styles';
 import COLORS from './colors.json';
-import { varAlpha, createPaletteChannel } from '../styles';
 
 // ----------------------------------------------------------------------
 
@@ -33,6 +33,7 @@ declare module '@mui/material/styles/createPalette' {
 
 declare module '@mui/material/styles' {
   interface ThemeVars {
+    // biome-ignore lint/correctness/noUndeclaredVariables: <explanation>
     transitions: Theme['transitions'];
   }
 }
