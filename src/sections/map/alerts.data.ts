@@ -11,6 +11,7 @@ export type AlertType = {
   iconColor?: AwesomeMarkers.AwesomeMarkersIconOptions['iconColor'];
 };
 
+
 export const ALERT_TYPES: AlertType[] = [
   {
     type: 'flood',
@@ -33,7 +34,7 @@ export const ALERT_TYPES: AlertType[] = [
     label: 'Incêndio',
     iconMarker: 'fire',
     icon: 'fa-fire',
-    markerColor: 'red',
+    markerColor: 'darkred',
     iconColor: 'white',
   },
   {

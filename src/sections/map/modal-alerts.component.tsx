@@ -38,7 +38,7 @@ export const ModalAlerts: FC<ModalWarningsProps> = ({ position, handleClose, onS
                       alignItems: "center",
                       justifyContent: "center",
                       flexDirection: "column",
-                      color: "primary.main",
+                      color: alert.markerColor,
                     }}
                   >
                     <i className={`fa-solid ${icon}`} style={{ fontSize: 36 }} />
