@@ -1,11 +1,10 @@
-import { Button, Card, Typography } from "@mui/material";
 import { useCallback, useEffect, useMemo } from "react";
-import toast from "react-hot-toast";
 import { useAuthContext } from "src/auth/hooks";
 import { socket } from "src/socket";
 import { playBeep, playSiren } from "src/utils/audio";
 import { distanceKm } from "src/utils/geo";
 import { create } from "zustand";
+import { toastAlert } from "./aler-toast.component";
 import { ALERT_TYPES, AlertType } from "./alerts.data";
 
 export type MarkerData = {
@@ -51,23 +50,6 @@ const createMarker = (data: Omit<MarkerData, "alert">): MarkerData => {
   };
 };
 
-const AlertToast = ({ id, km }: { id: string; km: number }) => {
-  return (
-    <Card>
-      <Typography variant="h6">ATENÇAO ALERTA A MENOS DE {km} kilometros de distancia! </Typography>
-      <Button
-        onClick={() => {
-          toast.dismiss(id);
-        }}
-        color="error"
-        variant="contained"
-      >
-        Close
-      </Button>
-    </Card>
-  );
-};
-
 const useInit = () => {
   const { isAdmin } = useAuthContext();
   const userPos = useStore((state) => state.userPos);
@@ -102,10 +84,10 @@ const useInit = () => {
       const distance = distanceKm(userPos, m.position);
       if (distance <= 1) {
         playSiren();
-        toast.custom((t) => <AlertToast id={t.id} km={1} />, { duration: Infinity });
+        toastAlert(1);
       } else if (distance <= 5) {
         playBeep();
-        toast.custom((t) => <AlertToast id={t.id} km={1} />, { duration: Infinity });
+        toastAlert(5);
       }
     };
 
