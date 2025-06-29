@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 // server.ts
 import { createServer } from "http";
 import os from "os";
@@ -6,7 +7,6 @@ import chalk from "chalk";
 import next from "next";
 import pkg from "next/package.json";
 import { Server as IOServer, Socket } from "socket.io";
-import { randomUUID } from "crypto";
 import { MarkerData } from "src/sections/map/map-view";
 
 type ServerMarker = MarkerData & {
@@ -74,11 +74,13 @@ app.prepare().then(() => {
 
     socket.data.isAdmin = Boolean(socket.handshake.auth?.isAdmin);
 
-    const emitMarkers = (s: Socket) => {
+    const emitMarkers = (s: Socket, justAdmin?: boolean) => {
       const data = s.data.isAdmin
         ? markers
         : markers.filter((m) => m.approved || m.creatorId === s.id);
-      s.emit("markers", data);
+
+      if (justAdmin) s.to("admin").emit("markers", data); else s.emit("markers", data);
+
     };
 
     emitMarkers(socket);
@@ -97,7 +99,11 @@ app.prepare().then(() => {
         creatorId: socket.id,
       };
       markers.push(newMarker);
-      io.sockets.sockets.forEach(emitMarkers);
+      if (newMarker.approved) {
+        io.emit("new-alert", newMarker);
+      } else {
+        emitMarkers(socket, true)
+      }
     });
 
     socket.on("approve-marker", (ids: string | string[]) => {
@@ -106,11 +112,9 @@ app.prepare().then(() => {
         const found = markers.find((m) => m.id === id);
         if (found && !found.approved) {
           found.approved = true;
-          io.to(found.creatorId).emit("marker-approved", found);
-          io.emit("marker-approved", found);
+          io.emit("new-alert", found);
         }
       });
-      io.sockets.sockets.forEach(emitMarkers);
     });
   });
 
