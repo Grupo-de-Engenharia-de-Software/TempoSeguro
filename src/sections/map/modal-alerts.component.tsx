@@ -1,16 +1,17 @@
 import { Box, ButtonBase, Dialog, Grid, Typography } from "@mui/material";
-import { FC } from "react";
-import { ALERT_TYPES, AlertType } from "./alerts.data";
+import { MapService } from "src/services/map/map.service";
+import { ALERT_TYPES } from "../../services/map/alerts.data";
 
-interface ModalWarningsProps {
-  position: [number, number] | null;
-  handleClose: () => void;
-  onSave: (type: AlertType) => void;
-}
-
-export const ModalAlerts: FC<ModalWarningsProps> = ({ position, handleClose, onSave }) => {
+export const ModalAlerts = () => {
+  const position = MapService.useStore((e) => e.addingPos);
+  const onSave = MapService.useAddAlert();
   return (
-    <Dialog onClose={handleClose} open={Boolean(position)} maxWidth="sm" fullWidth>
+    <Dialog
+      onClose={() => MapService.useStore.setState({ addingPos: null })}
+      open={Boolean(position)}
+      maxWidth="sm"
+      fullWidth
+    >
       <Box sx={{ padding: 3 }}>
         <Grid container spacing={1} justifyContent="center">
           {ALERT_TYPES.map((alert) => {

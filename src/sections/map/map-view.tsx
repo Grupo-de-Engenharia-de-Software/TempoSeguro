@@ -18,46 +18,29 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import { useAuthContext } from "src/auth/hooks";
-import { playBeep, playSiren } from "src/utils/audio";
-import { distanceKm } from "src/utils/geo";
+import { MapService } from "src/services/map/map.service";
 import { socket } from "../../socket";
-import { ALERT_TYPES, AlertType } from "./alerts.data";
 import { ModalAlerts } from "./modal-alerts.component";
 
 const { Overlay } = LayersControl;
-const defaultPosition: [number, number] = [-30.0346, -51.2177];
 
-export type MarkerData = {
-  id?: string;
-  position: [number, number];
-  title: string;
-  type: string;
-  approved?: boolean;
-  creatorId?: string;
-  alert: AlertType;
-};
-
-function AddMarker({ onAdd }: { onAdd: (pos: [number, number]) => void }) {
+function AddMarker() {
   useMapEvents({
     click(e) {
-      onAdd([e.latlng.lat, e.latlng.lng]);
+      MapService.useStore.setState({ addingPos: [e.latlng.lat, e.latlng.lng] });
     },
   });
   return null;
 }
 
-function LocateUser({
-  onLocate,
-}: {
-  onLocate?: (pos: [number, number]) => void;
-}) {
+function LocateUser() {
   const [pos, setPos] = useState<[number, number] | null>(null);
   const map = useMapEvents({
     locationfound(e) {
       const coords: [number, number] = [e.latlng.lat, e.latlng.lng];
       setPos(coords);
       map.flyTo(coords, 13);
-      onLocate?.(coords);
+      MapService.useStore.setState({ userPos: coords });
     },
     locationerror(err) {
       console.error("Erro ao obter localização:", err.message);
@@ -75,110 +58,11 @@ function LocateUser({
   ) : null;
 }
 
-const createMarker = (data: Omit<MarkerData, "alert">): MarkerData => {
-  const alert = ALERT_TYPES.find((a) => a.type.toLowerCase() === data.type.toLowerCase());
-  return {
-    ...data,
-    alert: alert || ALERT_TYPES[0],
-    id: data.id || crypto.randomUUID(),
-    approved: data.approved ?? false,
-    creatorId: data.creatorId || "",
-  };
-};
-
 export default function MapView() {
-  const [addingPos, setAddingPos] = useState<[number, number] | null>(null);
-  const [markers, setMarkers] = useState<MarkerData[]>([]);
-  const [userPos, setUserPos] = useState<[number, number] | null>(null);
-  const [socketId, setSocketId] = useState<string>("");
   const { isAdmin } = useAuthContext();
+  const { groupedApproved, groupedPending, pendingFromUser } = MapService.useMarkers();
 
-  useEffect(() => {
-    const handleMarkers = (data: Omit<MarkerData, "alert">[]) => {
-      setMarkers(data.map(createMarker));
-    };
-
-    const handleConnect = () => {
-      if (isAdmin) (socket as any).join("admin");
-      return setSocketId(socket.id!);
-    };
-    const handleNewAlert = (m: MarkerData) => {
-      let existed = false;
-      setMarkers((prev) => {
-        const existing = prev.find(
-          (marker) => marker.type === m.type && marker.position[0] === m.position[0] && marker.position[1] === m.position[1],
-        );
-        console.log({ existing, prev, m });
-        if (existing) {
-          existed = true;
-          return prev.map((marker) =>
-            marker.id === m.id ? createMarker({ ...marker, ...m }) : marker,
-          );
-        }
-        return [...prev, createMarker(m)];
-      });
-
-      if (!userPos || existed) return;
-      const distance = distanceKm(userPos, m.position);
-      if (distance <= 1) playSiren();
-      else if (distance <= 5) playBeep();
-    };
-
-    socket.on("markers", handleMarkers);
-    socket.on("new-alert", handleNewAlert);
-    socket.emit("get-markers");
-    return () => {
-      socket.off("connect", handleConnect);
-      socket.off("markers", handleMarkers);
-      socket.off("new-alert", handleNewAlert);
-    };
-  }, [userPos, isAdmin]);
-
-  const handleAdd = (pos: [number, number]) => setAddingPos(pos);
-  const handleSave = (alert: AlertType) => {
-    if (!addingPos) return;
-    socket.emit("new-marker", {
-      position: addingPos,
-      title: alert.label,
-      type: alert.type,
-    });
-    setMarkers((prev) => [
-      ...prev,
-      createMarker({
-        position: addingPos,
-        title: alert.label,
-        type: alert.type,
-        approved: isAdmin,
-        creatorId: socketId,
-      }),
-    ]);
-    setAddingPos(null);
-  };
-
-  // separa arrays
-  const approved = markers.filter((m) => m.approved);
-  const pending = markers.filter((m) => !m.approved);
-
-  type Grouped = { base: MarkerData; ids: string[]; count: number };
-
-  const groupMarkers = (list: MarkerData[]) => {
-    const groups: Grouped[] = [];
-    list.forEach((m) => {
-      const g = groups.find(
-        (gr) => distanceKm(gr.base.position, m.position) <= 0.05 && gr.base.type === m.type,
-      );
-      if (g) {
-        g.count += 1;
-        m.id && g.ids.push(m.id);
-      } else {
-        groups.push({ base: m, ids: m.id ? [m.id] : [], count: 1 });
-      }
-    });
-    return groups;
-  };
-
-  const groupedApproved = groupMarkers(approved);
-  const groupedPending = groupMarkers(pending);
+  MapService.useInit();
 
   const approvedMarkers = (
     <>
@@ -205,7 +89,7 @@ export default function MapView() {
   return (
     <Box sx={{ flex: 1, position: "relative" }}>
       <MapContainer
-        center={defaultPosition}
+        center={MapService.defaultPosition}
         zoom={13}
         style={{ height: "calc(100vh - 72px)", width: "100%" }}
       >
@@ -245,7 +129,12 @@ export default function MapView() {
                         {g.count > 1 && (
                           <Typography variant="caption">Repetido {g.count}x</Typography>
                         )}
-                        <Button size="small" onClick={() => socket.emit("approve-marker", g.ids)}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          onClick={() => socket.emit("approve-marker", g.ids)}
+                        >
                           Aprovar
                         </Button>
                       </Stack>
@@ -262,43 +151,41 @@ export default function MapView() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {approvedMarkers}
-            {pending
-              .filter((m) => m.creatorId === socketId)
-              .map((m, i) => (
-                <Marker
-                  key={`my-${i}`}
-                  position={m.position}
-                  opacity={0.5}
-                  icon={L.AwesomeMarkers.icon({
-                    icon: m.alert.iconMarker,
-                    prefix: "fa",
-                    iconColor: m.alert.iconColor || "white",
-                    markerColor: m.alert.markerColor || "red",
-                  })}
-                >
-                  <Popup>{m.title}</Popup>
-                </Marker>
-              ))}
+            {pendingFromUser.map((m, i) => (
+              <Marker
+                key={`my-${i}`}
+                position={m.position}
+                opacity={0.5}
+                icon={L.AwesomeMarkers.icon({
+                  icon: m.alert.iconMarker,
+                  prefix: "fa",
+                  iconColor: m.alert.iconColor || "white",
+                  markerColor: m.alert.markerColor || "red",
+                })}
+              >
+                <Popup>{m.title}</Popup>
+              </Marker>
+            ))}
           </>
         )}
 
-        <LocateUser onLocate={setUserPos} />
-        <AddMarker onAdd={handleAdd} />
+        <LocateUser />
+        <AddMarker />
       </MapContainer>
 
       <Fab
         color="secondary"
         size="large"
-        onClick={() => setAddingPos(defaultPosition)}
+        onClick={() =>
+          MapService.useStore.setState((p) => ({
+            addingPos: p.userPos || MapService.defaultPosition,
+          }))
+        }
         sx={{ position: "fixed", bottom: 16, right: 16, zIndex: 1000 }}
       >
         <SecurityUpdateWarningRoundedIcon />
       </Fab>
-      <ModalAlerts
-        handleClose={() => setAddingPos(null)}
-        position={addingPos}
-        onSave={handleSave}
-      />
+      <ModalAlerts />
     </Box>
   );
 }
