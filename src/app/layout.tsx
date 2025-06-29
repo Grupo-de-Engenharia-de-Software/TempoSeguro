@@ -4,6 +4,7 @@ import "src/global.css";
 
 import type { Viewport } from "next";
 
+import { Toaster } from "react-hot-toast";
 import { CONFIG } from "src/config-global";
 import { getInitColorSchemeScript } from "src/theme/color-scheme-script";
 import { primary } from "src/theme/core/palette";
@@ -33,16 +34,18 @@ export default async function RootLayout({ children }: Props) {
 
   return (
     <html lang="en" suppressHydrationWarning>
-
       <head>
         <script src="https://kit.fontawesome.com/f88423a809.js" crossOrigin="anonymous"></script>
       </head>
 
       <body>
         {getInitColorSchemeScript}
-
+        <Toaster position="bottom-center" />
         <AuthProvider>
-          <SettingsProvider settings={settings} caches={CONFIG.isStaticExport ? "localStorage" : "cookie"}>
+          <SettingsProvider
+            settings={settings}
+            caches={CONFIG.isStaticExport ? "localStorage" : "cookie"}
+          >
             <ThemeProvider>
               <MotionLazy>
                 <ProgressBar />

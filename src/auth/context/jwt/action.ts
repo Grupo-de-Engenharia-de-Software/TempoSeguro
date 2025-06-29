@@ -2,6 +2,7 @@
 
 import axios, { endpoints } from "src/utils/axios";
 
+import { socket } from "src/socket";
 import { STORAGE_KEY } from "./constant";
 import { setSession } from "./utils";
 
@@ -40,6 +41,7 @@ export const signInWithPassword = async ({ email, password }: SignInParams): Pro
     }
 
     setSession(accessToken, email === "admin@admin.com");
+    socket.connect()
   } catch (error) {
     console.error("Error during sign in:", error);
     throw error;
@@ -78,6 +80,7 @@ export const signUp = async ({ email, password, firstName, lastName }: SignUpPar
  *************************************** */
 export const signOut = async (): Promise<void> => {
   try {
+    socket.disconnect()
     await setSession(null, false);
   } catch (error) {
     console.error("Error during sign out:", error);

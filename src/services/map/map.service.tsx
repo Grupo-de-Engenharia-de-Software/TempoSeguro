@@ -1,9 +1,11 @@
+import { Button, Card, Typography } from "@mui/material";
 import { useCallback, useEffect, useMemo } from "react";
+import toast from "react-hot-toast";
 import { useAuthContext } from "src/auth/hooks";
 import { socket } from "src/socket";
 import { playBeep, playSiren } from "src/utils/audio";
 import { distanceKm } from "src/utils/geo";
-import { create } from "zustand"
+import { create } from "zustand";
 import { ALERT_TYPES, AlertType } from "./alerts.data";
 
 export type MarkerData = {
@@ -36,7 +38,7 @@ const useStore = create<MapStore>(() => ({
       markers: typeof markers === "function" ? markers(state.markers) : markers,
     }));
   },
-}))
+}));
 
 const createMarker = (data: Omit<MarkerData, "alert">): MarkerData => {
   const alert = ALERT_TYPES.find((a) => a.type.toLowerCase() === data.type.toLowerCase());
@@ -49,29 +51,44 @@ const createMarker = (data: Omit<MarkerData, "alert">): MarkerData => {
   };
 };
 
+const AlertToast = ({ id, km }: { id: string; km: number }) => {
+  return (
+    <Card>
+      <Typography variant="h6">ATENÇAO ALERTA A MENOS DE {km} kilometros de distancia! </Typography>
+      <Button
+        onClick={() => {
+          toast.dismiss(id);
+        }}
+        color="error"
+        variant="contained"
+      >
+        Close
+      </Button>
+    </Card>
+  );
+};
+
 const useInit = () => {
   const { isAdmin } = useAuthContext();
   const userPos = useStore((state) => state.userPos);
 
   useEffect(() => {
-
     const setMarkers = useStore.getState().setMarkers;
 
     const handleMarkers = (data: Omit<MarkerData, "alert">[]) => {
-      setMarkers(data.map(createMarker));
+      const nMarkers = data.map(createMarker);
+      setMarkers(nMarkers);
+      console.log("data.map(createMarker): ", nMarkers);
     };
 
     const handleConnect = () => {
-      if (isAdmin) (socket as any).join("admin");
+      if (isAdmin) socket.emit("isAdmin");
       return useStore.setState({ socketId: socket.id! });
     };
     const handleNewAlert = (m: MarkerData) => {
       let existed = false;
       setMarkers((prev) => {
-        const existing = prev.find(
-          (marker) => marker.id === m.id || m.creatorId === socket.id
-        );
-        console.log({ existing, prev, m });
+        const existing = prev.find((marker) => marker.id === m.id);
         if (existing) {
           existed = true;
           return prev.map((marker) =>
@@ -81,12 +98,18 @@ const useInit = () => {
         return [...prev, createMarker(m)];
       });
 
-      if (!userPos || existed) return;
+      if (!userPos || existed || m.creatorId === socket.id) return;
       const distance = distanceKm(userPos, m.position);
-      if (distance <= 1) playSiren();
-      else if (distance <= 5) playBeep();
+      if (distance <= 1) {
+        playSiren();
+        toast.custom((t) => <AlertToast id={t.id} km={1} />, { duration: Infinity });
+      } else if (distance <= 5) {
+        playBeep();
+        toast.custom((t) => <AlertToast id={t.id} km={1} />, { duration: Infinity });
+      }
     };
 
+    socket.on("connect", handleConnect);
     socket.on("markers", handleMarkers);
     socket.on("new-alert", handleNewAlert);
     socket.emit("get-markers");
@@ -96,35 +119,26 @@ const useInit = () => {
       socket.off("new-alert", handleNewAlert);
     };
   }, [userPos, isAdmin]);
-
-}
+};
 
 const useAddAlert = () => {
-  const { isAdmin } = useAuthContext();
   const addingPos = useStore((state) => state.addingPos);
 
-  return useCallback((alert: AlertType) => {
-    if (!addingPos) return;
-    socket.emit("new-marker", {
-      position: addingPos,
-      title: alert.label,
-      type: alert.type,
-    });
-    useStore.setState((state) => ({
-      markers: [
-        ...state.markers,
-        createMarker({
-          position: addingPos,
-          title: alert.label,
-          type: alert.type,
-          approved: isAdmin,
-          creatorId: state.socketId,
-        }),
-      ],
-      addingPos: null,
-    }));
-  }, [addingPos, isAdmin]);
-}
+  return useCallback(
+    (alert: AlertType) => {
+      if (!addingPos) return;
+      socket.emit("new-marker", {
+        position: addingPos,
+        title: alert.label,
+        type: alert.type,
+      });
+      useStore.setState(() => ({
+        addingPos: null,
+      }));
+    },
+    [addingPos],
+  );
+};
 
 type Grouped = { base: MarkerData; ids: string[]; count: number };
 const groupMarkers = (list: MarkerData[]) => {
@@ -152,14 +166,17 @@ const useMarkers = () => {
   const groupedApproved = useMemo(() => groupMarkers(approved), [approved]);
   const groupedPending = useMemo(() => groupMarkers(pending), [pending]);
 
-  const pendingFromUser = useMemo(() => pending.filter(p => p.creatorId === socket.id), [pending]);
+  const pendingFromUser = useMemo(
+    () => pending.filter((p) => p.creatorId === socket.id),
+    [pending],
+  );
 
   return {
     groupedApproved,
     groupedPending,
-    pendingFromUser
-  }
-}
+    pendingFromUser,
+  };
+};
 
 export const MapService = {
   useStore,
@@ -167,5 +184,5 @@ export const MapService = {
   useAddAlert,
   createMarker,
   useMarkers,
-  defaultPosition
-}
+  defaultPosition,
+};
