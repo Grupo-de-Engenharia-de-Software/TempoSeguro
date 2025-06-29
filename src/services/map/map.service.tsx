@@ -54,6 +54,12 @@ const useInit = () => {
   const { isAdmin } = useAuthContext();
   const userPos = useStore((state) => state.userPos);
 
+  useEffect(()=>{
+    if(isAdmin){
+      socket.emit("isAdmin")
+    }
+  },[isAdmin])
+
   useEffect(() => {
     const setMarkers = useStore.getState().setMarkers;
 
