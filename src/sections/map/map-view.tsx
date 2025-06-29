@@ -5,19 +5,22 @@ import L from "leaflet";
 window.L = L; // necessário para o Leaflet funcionar corretamente com o React
 import "leaflet.awesome-markers";
 import SecurityUpdateWarningRoundedIcon from '@mui/icons-material/SecurityUpdateWarningRounded';
-import { Fab } from "@mui/material";
+import { Fab, Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { CircleMarker, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { socket } from "../../socket";
+import { useAuthContext } from "src/auth/hooks";
 import { ALERT_TYPES, AlertType } from "./alerts.data";
 import { ModalAlerts } from "./modal-alerts.component";
 
 const defaultPosition: [number, number] = [-30.0346, -51.2177];
 
 export type MarkerData = {
+  id?: string;
   position: [number, number];
   title: string;
   type: string;
+  approved?: boolean;
 };
 
 function AddMarker({ onAdd }: { onAdd: (pos: [number, number]) => void }) {
@@ -63,6 +66,7 @@ export default function MapView() {
   const [addingPos, setAddingPos] = useState<[number, number] | null>(null);
   const [markers, setMarkers] = useState<(MarkerData & {alert:AlertType})[]>([]);
   console.log('markers: ', markers);
+  const { isAdmin } = useAuthContext();
 
   useEffect(() => {
     const handleMarkers = (data: MarkerData[]) => {
@@ -74,10 +78,16 @@ export default function MapView() {
     };
     socket.on("markers", handleMarkers);
 
+    const handleApproved = (id: string) => {
+      alert('Seu alerta foi aprovado!');
+    };
+    socket.on('marker-approved', handleApproved);
+
     socket.emit("get-markers");
 
     return () => {
       socket.off("markers", handleMarkers);
+      socket.off('marker-approved', handleApproved);
     };
   }, []);
 
@@ -105,13 +115,24 @@ export default function MapView() {
         <LocateUser />
 
         {markers.map((m, idx) => (
-          <Marker key={idx} position={m.position} icon={L.AwesomeMarkers.icon({
-            icon: m.alert.iconMarker,
-            prefix: "fa",
-            iconColor: m.alert.iconColor || "white",
-            markerColor: m.alert.markerColor || "blue",
-          })}>
-            <Popup>{m.title}</Popup>
+          <Marker
+            key={idx}
+            position={m.position}
+            icon={L.AwesomeMarkers.icon({
+              icon: m.alert.iconMarker,
+              prefix: "fa",
+              iconColor: m.alert.iconColor || "white",
+              markerColor: m.approved ? m.alert.markerColor || "blue" : "gray",
+            })}
+          >
+            <Popup>
+              {m.title}
+              {isAdmin && !m.approved && (
+                <Button size="small" onClick={() => socket.emit("approve-marker", m.id)}>
+                  Aprovar
+                </Button>
+              )}
+            </Popup>
           </Marker>
         ))}
 

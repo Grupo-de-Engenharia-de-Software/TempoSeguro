@@ -5,11 +5,17 @@ import { parse } from "url";
 import chalk from "chalk";
 import next from "next";
 import pkg from "next/package.json";
-import { Server as IOServer } from "socket.io";
+import { Server as IOServer, Socket } from "socket.io";
+import { randomUUID } from "crypto";
 import { MarkerData } from "src/sections/map/map-view";
 
+type ServerMarker = MarkerData & {
+  id: string;
+  approved: boolean;
+  creatorId: string;
+};
 
-const markers: MarkerData[] = [];
+const markers: ServerMarker[] = [];
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "0.0.0.0";
@@ -66,18 +72,39 @@ app.prepare().then(() => {
   io.on("connection", (socket) => {
     console.log("⚡️  client connected:", socket.id);
 
-    // Envia os marcadores atuais ao novo cliente
-    socket.emit("markers", markers);
+    socket.data.isAdmin = Boolean(socket.handshake.auth?.isAdmin);
+
+    const emitMarkers = (s: Socket) => {
+      const data = s.data.isAdmin ? markers : markers.filter((m) => m.approved);
+      s.emit("markers", data);
+    };
+
+    emitMarkers(socket);
 
     // Cliente solicita lista de marcadores
     socket.on("get-markers", () => {
-      socket.emit("markers", markers);
+      emitMarkers(socket);
     });
 
     // Recebe novo marcador e avisa a todos
     socket.on("new-marker", (marker: MarkerData) => {
-      markers.push(marker);
-      io.emit("markers", markers);
+      const newMarker: ServerMarker = {
+        ...marker,
+        id: randomUUID(),
+        approved: socket.data.isAdmin ?? false,
+        creatorId: socket.id,
+      };
+      markers.push(newMarker);
+      io.sockets.sockets.forEach(emitMarkers);
+    });
+
+    socket.on("approve-marker", (id: string) => {
+      const found = markers.find((m) => m.id === id);
+      if (found) {
+        found.approved = true;
+        io.to(found.creatorId).emit("marker-approved", id);
+        io.sockets.sockets.forEach(emitMarkers);
+      }
     });
   });
 
