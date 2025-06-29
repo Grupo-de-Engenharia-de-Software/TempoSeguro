@@ -1,54 +1,32 @@
-## Prerequisites
+# Tempo Seguro
 
-- Node.js 20.x (Recommended)
+## Descrição
+Tempo Seguro é uma aplicação web que permite registrar e acompanhar alertas de ocorrências climáticas em tempo real. No mapa é possível adicionar marcadores de situações como enchentes, deslizamentos e outros eventos. Os administradores aprovam os marcadores antes que eles fiquem visíveis para todos os usuários.
 
-## Installation
+## Requisitos
+- Node.js 20.x
+- npm ou outro gerenciador de pacotes (yarn/pnpm)
 
-**Using Yarn (Recommended)**
-
-```sh
-yarn install
-yarn dev
+## Instalação e execução
+1. Instale as dependências:
+```bash
+npm install
 ```
-
-**Using Npm**
-
-```sh
-npm i
+2. Inicie o ambiente de desenvolvimento:
+```bash
 npm run dev
 ```
+Após iniciar o servidor, serão exibidos os endereços para acesso. Para abrir a aplicação no celular, conecte-o à mesma rede e utilize o endereço IPv4 mostrado (por exemplo: `https://192.168.0.100:3000`).
 
-## Build
-
-```sh
-yarn build
-# or
+## Build de produção
+Para gerar os arquivos de produção, execute:
+```bash
 npm run build
 ```
+E então:
+```bash
+npm run start
+```
 
-## Mock server
-
-By default we provide demo data from : `https://api-dev-minimal-[version].vercel.app`
-
-To set up your local server:
-
-- **Guide:** [https://docs.minimals.cc/mock-server](https://docs.minimals.cc/mock-server).
-
-- **Resource:** [Download](https://www.dropbox.com/sh/6ojn099upi105tf/AACpmlqrNUacwbBfVdtt2t6va?dl=0).
-
-## Full version
-
-- Create React App ([migrate to CRA](https://docs.minimals.cc/migrate-to-cra/)).
-- Next.js
-- Vite.js
-
-## Starter version
-
-- To remove unnecessary components. This is a simplified version ([https://starter.minimals.cc/](https://starter.minimals.cc/))
-- Good to start a new project. You can copy components from the full version.
-- Make sure to install the dependencies exactly as compared to the full version.
-
----
-
-**NOTE:**
-_When copying folders remember to also copy hidden files like .env. This is important because .env files often contain environment variables that are crucial for the application to run correctly._
+## Funcionamento do app
+Ao abrir o mapa, o usuário pode localizar sua posição e clicar para adicionar um novo alerta. Depois de escolher o tipo de evento, o marcador é enviado ao servidor e fica pendente de aprovação. Quando aprovado por um administrador, todos os usuários recebem a notificação imediatamente. Dependendo da distância até o alerta, diferentes sons de aviso são reproduzidos.
