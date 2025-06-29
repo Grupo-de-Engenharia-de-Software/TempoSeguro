@@ -6,14 +6,10 @@ import chalk from "chalk";
 import next from "next";
 import pkg from "next/package.json";
 import { Server as IOServer } from "socket.io";
+import { MarkerData } from "src/sections/map/map-view";
 
-type Marker = {
-  position: [number, number];
-  title: string;
-  description?: string;
-};
 
-const markers: Marker[] = [];
+const markers: MarkerData[] = [];
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "0.0.0.0";
@@ -79,7 +75,7 @@ app.prepare().then(() => {
     });
 
     // Recebe novo marcador e avisa a todos
-    socket.on("new-marker", (marker: Marker) => {
+    socket.on("new-marker", (marker: MarkerData) => {
       markers.push(marker);
       io.emit("markers", markers);
     });

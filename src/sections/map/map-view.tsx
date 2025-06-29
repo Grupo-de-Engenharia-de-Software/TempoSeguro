@@ -7,8 +7,9 @@ import "leaflet.awesome-markers";
 import SecurityUpdateWarningRoundedIcon from '@mui/icons-material/SecurityUpdateWarningRounded';
 import { Fab } from "@mui/material";
 import { useEffect, useState } from "react";
-import { CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { CircleMarker, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { socket } from "../../socket";
+import { ALERT_TYPES, AlertType } from "./alerts.data";
 import { ModalAlerts } from "./modal-alerts.component";
 
 const defaultPosition: [number, number] = [-30.0346, -51.2177];
@@ -16,7 +17,7 @@ const defaultPosition: [number, number] = [-30.0346, -51.2177];
 export type MarkerData = {
   position: [number, number];
   title: string;
-  description: string;
+  type: string;
 };
 
 function AddMarker({ onAdd }: { onAdd: (pos: [number, number]) => void }) {
@@ -60,10 +61,17 @@ function LocateUser() {
 
 export default function MapView() {
   const [addingPos, setAddingPos] = useState<[number, number] | null>(null);
-  const [markers, setMarkers] = useState<MarkerData[]>([]);
+  const [markers, setMarkers] = useState<(MarkerData & {alert:AlertType})[]>([]);
+  console.log('markers: ', markers);
 
   useEffect(() => {
-    const handleMarkers = (data: MarkerData[]) => setMarkers(data);
+    const handleMarkers = (data: MarkerData[]) => {
+      console.log('data: ', data);
+      return setMarkers(data.map(marker => ({
+        ...marker,
+        alert: ALERT_TYPES.find(alert => alert.type.toLowerCase() === marker.type.toLowerCase())  || ALERT_TYPES[0],
+    })))
+    };
     socket.on("markers", handleMarkers);
 
     socket.emit("get-markers");
@@ -77,9 +85,9 @@ export default function MapView() {
     setAddingPos(pos);
   };
 
-  const handleSave = (type: string) => {
+  const handleSave = (alert: AlertType) => {
     if (!addingPos) return;
-    const newMarker: MarkerData = { position: addingPos, title: type, description: "" };
+    const newMarker: MarkerData = { position: addingPos, title: alert.label, type: alert.type };
     socket.emit("new-marker", newMarker);
     setAddingPos(null);
   };
@@ -97,9 +105,14 @@ export default function MapView() {
         <LocateUser />
 
         {markers.map((m, idx) => (
-          <CircleMarker key={idx} center={m.position} radius={8}>
+          <Marker key={idx} position={m.position} icon={L.AwesomeMarkers.icon({
+            icon: m.alert.iconMarker,
+            prefix: "fa",
+            iconColor: m.alert.iconColor || "white",
+            markerColor: m.alert.markerColor || "blue",
+          })}>
             <Popup>{m.title}</Popup>
-          </CircleMarker>
+          </Marker>
         ))}
 
         <AddMarker onAdd={handleAdd} />
