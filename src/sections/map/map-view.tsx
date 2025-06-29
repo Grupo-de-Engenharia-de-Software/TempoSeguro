@@ -5,7 +5,7 @@ import L from "leaflet";
 window.L = L;
 import "leaflet.awesome-markers";
 import SecurityUpdateWarningRoundedIcon from "@mui/icons-material/SecurityUpdateWarningRounded";
-import { Button, Fab, Stack, Typography } from "@mui/material";
+import { Badge, Button, Fab, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import {
   CircleMarker,
@@ -21,6 +21,8 @@ import { useAuthContext } from "src/auth/hooks";
 import { socket } from "../../socket";
 import { ALERT_TYPES, AlertType } from "./alerts.data";
 import { ModalAlerts } from "./modal-alerts.component";
+import { distanceKm } from "src/utils/geo";
+import { playBeep, playSiren } from "src/utils/audio";
 
 const { Overlay } = LayersControl;
 const defaultPosition: [number, number] = [-30.0346, -51.2177];
@@ -43,13 +45,18 @@ function AddMarker({ onAdd }: { onAdd: (pos: [number, number]) => void }) {
   return null;
 }
 
-function LocateUser() {
+function LocateUser({
+  onLocate,
+}: {
+  onLocate?: (pos: [number, number]) => void;
+}) {
   const [pos, setPos] = useState<[number, number] | null>(null);
   const map = useMapEvents({
     locationfound(e) {
       const coords: [number, number] = [e.latlng.lat, e.latlng.lng];
       setPos(coords);
       map.flyTo(coords, 13);
+      onLocate?.(coords);
     },
     locationerror(err) {
       console.error("Erro ao obter localização:", err.message);
@@ -70,6 +77,8 @@ function LocateUser() {
 export default function MapView() {
   const [addingPos, setAddingPos] = useState<[number, number] | null>(null);
   const [markers, setMarkers] = useState<MarkerData[]>([]);
+  const [userPos, setUserPos] = useState<[number, number] | null>(null);
+  const [socketId, setSocketId] = useState<string>("");
   const { isAdmin } = useAuthContext();
 
   useEffect(() => {
@@ -84,12 +93,24 @@ export default function MapView() {
       );
     };
 
+    const handleConnect = () => setSocketId(socket.id);
+    const handleApproved = (m: MarkerData) => {
+      if (!userPos) return;
+      const distance = distanceKm(userPos, m.position);
+      if (distance <= 1) playSiren();
+      else if (distance <= 5) playBeep();
+    };
+
+    socket.on("connect", handleConnect);
     socket.on("markers", handleMarkers);
+    socket.on("marker-approved", handleApproved);
     socket.emit("get-markers");
     return () => {
+      socket.off("connect", handleConnect);
       socket.off("markers", handleMarkers);
+      socket.off("marker-approved", handleApproved);
     };
-  }, []);
+  }, [userPos]);
 
   const handleAdd = (pos: [number, number]) => setAddingPos(pos);
   const handleSave = (alert: AlertType) => {
@@ -106,20 +127,51 @@ export default function MapView() {
   const approved = markers.filter((m) => m.approved);
   const pending = markers.filter((m) => !m.approved);
 
+  type Grouped = { base: MarkerData; ids: string[]; count: number };
+
+  const groupMarkers = (list: MarkerData[]) => {
+    const groups: Grouped[] = [];
+    list.forEach((m) => {
+      const g = groups.find(
+        (gr) =>
+          distanceKm(gr.base.position, m.position) <= 0.05 &&
+          gr.base.type === m.type,
+      );
+      if (g) {
+        g.count += 1;
+        m.id && g.ids.push(m.id);
+      } else {
+        groups.push({ base: m, ids: m.id ? [m.id] : [], count: 1 });
+      }
+    });
+    return groups;
+  };
+
+  const groupedApproved = groupMarkers(approved);
+  const groupedPending = groupMarkers(pending);
+
+  const badgeIcon = (alert: AlertType, count: number, color?: string) =>
+    L.divIcon({
+      html: `<div class="marker-wrapper"><div class="awesome-marker-icon-${color || alert.markerColor || "blue"} awesome-marker"><i class="fa ${alert.iconMarker}${alert.iconColor === "white" ? " icon-white" : ""}"${alert.iconColor && alert.iconColor !== "white" ? ` style=\"color:${alert.iconColor}\"` : ""}></i></div>${count > 1 ? `<span class="marker-badge">${count}</span>` : ""}</div>`,
+      className: "",
+      iconAnchor: [17, 42],
+      popupAnchor: [1, -32],
+    });
+
   const approvedMarkers = (
     <>
-      {approved.map((m, i) => (
+      {groupedApproved.map((g, i) => (
         <Marker
           key={`app-${i}`}
-          position={m.position}
-          icon={L.AwesomeMarkers.icon({
-            icon: m.alert.iconMarker,
-            prefix: "fa",
-            iconColor: m.alert.iconColor || "white",
-            markerColor: m.alert.markerColor || "blue",
-          })}
+          position={g.base.position}
+          icon={badgeIcon(g.base.alert, g.count, g.base.alert.markerColor)}
         >
-          <Popup>{m.title}</Popup>
+          <Popup>
+            <Typography variant="subtitle1">{g.base.title}</Typography>
+            {g.count > 1 && (
+              <Typography variant="caption">Repetido {g.count}x</Typography>
+            )}
+          </Popup>
         </Marker>
       ))}
     </>
@@ -150,21 +202,19 @@ export default function MapView() {
             {/* camada de marcadores pendentes */}
             <Overlay name="Marcadores Pendentes">
               <LayerGroup>
-                {pending.map((m, i) => (
+                {groupedPending.map((g, i) => (
                   <Marker
                     key={`pen-${i}`}
-                    position={m.position}
-                    icon={L.AwesomeMarkers.icon({
-                      icon: m.alert.iconMarker,
-                      prefix: "fa",
-                      iconColor: m.alert.iconColor || "white",
-                      markerColor: m.alert.markerColor || "red",
-                    })}
+                    position={g.base.position}
+                    icon={badgeIcon(g.base.alert, g.count, "red")}
                   >
                     <Popup>
                       <Stack minWidth={200} gap={1}>
-                        <Typography variant="subtitle1">{m.title}</Typography>
-                        <Button size="small" onClick={() => socket.emit("approve-marker", m.id)}>
+                        <Typography variant="subtitle1">{g.base.title}</Typography>
+                        {g.count > 1 && (
+                          <Typography variant="caption">Repetido {g.count}x</Typography>
+                        )}
+                        <Button size="small" onClick={() => socket.emit("approve-marker", g.ids)}>
                           Aprovar
                         </Button>
                       </Stack>
@@ -181,10 +231,27 @@ export default function MapView() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {approvedMarkers}
+            {pending
+              .filter((m) => m.creatorId === socketId)
+              .map((m, i) => (
+                <Marker
+                  key={`my-${i}`}
+                  position={m.position}
+                  opacity={0.5}
+                  icon={L.AwesomeMarkers.icon({
+                    icon: m.alert.iconMarker,
+                    prefix: "fa",
+                    iconColor: m.alert.iconColor || "white",
+                    markerColor: m.alert.markerColor || "red",
+                  })}
+                >
+                  <Popup>{m.title}</Popup>
+                </Marker>
+              ))}
           </>
         )}
 
-        <LocateUser />
+        <LocateUser onLocate={setUserPos} />
         <AddMarker onAdd={handleAdd} />
       </MapContainer>
 

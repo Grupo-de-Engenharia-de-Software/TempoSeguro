@@ -75,7 +75,9 @@ app.prepare().then(() => {
     socket.data.isAdmin = Boolean(socket.handshake.auth?.isAdmin);
 
     const emitMarkers = (s: Socket) => {
-      const data = s.data.isAdmin ? markers : markers.filter((m) => m.approved);
+      const data = s.data.isAdmin
+        ? markers
+        : markers.filter((m) => m.approved || m.creatorId === s.id);
       s.emit("markers", data);
     };
 
@@ -98,13 +100,17 @@ app.prepare().then(() => {
       io.sockets.sockets.forEach(emitMarkers);
     });
 
-    socket.on("approve-marker", (id: string) => {
-      const found = markers.find((m) => m.id === id);
-      if (found) {
-        found.approved = true;
-        io.to(found.creatorId).emit("marker-approved", id);
-        io.sockets.sockets.forEach(emitMarkers);
-      }
+    socket.on("approve-marker", (ids: string | string[]) => {
+      const arr = Array.isArray(ids) ? ids : [ids];
+      arr.forEach((id) => {
+        const found = markers.find((m) => m.id === id);
+        if (found && !found.approved) {
+          found.approved = true;
+          io.to(found.creatorId).emit("marker-approved", found);
+          io.emit("marker-approved", found);
+        }
+      });
+      io.sockets.sockets.forEach(emitMarkers);
     });
   });
 
