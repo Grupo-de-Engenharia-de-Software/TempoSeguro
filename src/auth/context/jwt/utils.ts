@@ -1,3 +1,5 @@
+import toast from 'react-hot-toast';
+
 import { paths } from 'src/routes/paths';
 
 import axios from 'src/utils/axios';
@@ -55,17 +57,21 @@ export function tokenExpired(exp: number) {
   const currentTime = Date.now();
   const timeLeft = exp * 1000 - currentTime;
 
-  setTimeout(() => {
-    try {
-      alert('Token expired!');
-      sessionStorage.removeItem(STORAGE_KEY);
-      sessionStorage.removeItem(IS_ADMIN_STORAGE_KEY);
+  const handleExpired = () => {
+    sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(IS_ADMIN_STORAGE_KEY);
+    toast.error('Session expired. Redirecting...');
+    setTimeout(() => {
       window.location.href = paths.auth.jwt.signIn;
-    } catch (error) {
-      console.error('Error during token expiration:', error);
-      throw error;
-    }
-  }, timeLeft);
+    }, 1500);
+  };
+
+  if (timeLeft <= 0) {
+    handleExpired();
+    return;
+  }
+
+  setTimeout(handleExpired, timeLeft);
 }
 
 // ----------------------------------------------------------------------

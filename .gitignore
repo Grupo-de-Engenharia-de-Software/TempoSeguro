@@ -37,3 +37,9 @@ build
 tsconfig.tsbuildinfo
 
 certificates
+
+# ssl certs
+*.pem
+
+# environment variables
+.env

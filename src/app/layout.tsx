@@ -35,6 +35,7 @@ export default async function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* TODO: compute SRI hash for the specific kit version and add integrity attribute */}
         <script src="https://kit.fontawesome.com/f88423a809.js" crossOrigin="anonymous"></script>
       </head>
 

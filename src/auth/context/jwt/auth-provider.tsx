@@ -56,8 +56,6 @@ export function AuthProvider({ children }: Props) {
           user.email = "user@user.com"
         }
 
-        console.log(user)
-
         setState({
           user: {
             ...user,

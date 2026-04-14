@@ -12,9 +12,11 @@ export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
-    Notification.requestPermission().then((permission) => {
-      console.log("Permissão de notificação:", permission);
-    });
+    if(window.Notification){
+      window.Notification.requestPermission().then((permission) => {
+        console.log("Permissão de notificação:", permission);
+      });
+    }
 
     router.push(CONFIG.auth.redirectPath);
   }, [router]);

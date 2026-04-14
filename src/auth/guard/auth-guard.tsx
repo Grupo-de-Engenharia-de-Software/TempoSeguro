@@ -54,7 +54,8 @@ export function AuthGuard({ children }: Props) {
         supabase: paths.auth.supabase.signIn,
       }[method];
 
-      const href = `${signInPath}?${createQueryString('returnTo', pathname)}`;
+      const safePathname = pathname.startsWith('/') && !pathname.includes('://') ? pathname : '/';
+      const href = `${signInPath}?${createQueryString('returnTo', safePathname)}`;
 
       router.replace(href);
       return;

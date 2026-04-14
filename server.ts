@@ -8,6 +8,7 @@ import { parse } from "url";
 import chalk from "chalk";
 import next from "next";
 import pkg from "next/package.json";
+import { authMiddleware } from "server/middleware/auth";
 import { onConnect } from "server/socket";
 import { Server as IOServer } from "socket.io";
 
@@ -19,8 +20,8 @@ const version = pkg.version; // pega a versão do Next.js do package.json
 
 // Carregue seus arquivos gerados pelo mkcert (ou openssl)
 const httpsOptions: ServerOptions<typeof IncomingMessage, typeof ServerResponse> = {
-  key: fs.readFileSync("./localhost-key.pem"),
-  cert: fs.readFileSync("./localhost.pem"),
+  key: fs.readFileSync(process.env.SSL_KEY_PATH || "./localhost-key.pem"),
+  cert: fs.readFileSync(process.env.SSL_CERT_PATH || "./localhost.pem"),
 };
 
 // Função que retorna o primeiro IPv4 não-interno
@@ -65,10 +66,14 @@ app.prepare().then(() => {
   });
 
   // anexa seu Socket.IO
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",").map((o) => o.trim()) || [
+    `https://localhost:${port}`,
+  ];
   const io = new IOServer(httpServer, {
-    path: "/socket.io", // default; just be sure your client matches
-    cors: { origin: "*" },
+    path: "/socket.io",
+    cors: { origin: allowedOrigins },
   });
+  io.use(authMiddleware);
   io.on("connection", onConnect(io));
 
   httpServer.listen(port, hostname, () => {

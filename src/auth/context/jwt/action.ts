@@ -3,7 +3,7 @@
 import axios, { endpoints } from "src/utils/axios";
 
 import { socket } from "src/socket";
-import { STORAGE_KEY } from "./constant";
+import { LOCAL_EMAIL_STORAGE_KEY, STORAGE_KEY } from "./constant";
 import { setSession } from "./utils";
 
 // ----------------------------------------------------------------------
@@ -25,9 +25,12 @@ export type SignUpParams = {
  *************************************** */
 export const signInWithPassword = async ({ email, password }: SignInParams): Promise<void> => {
   try {
-    const params: { email: string; password: string } = { email: "", password: "" };
+    const params: { email: string; password: string } = { email, password };
 
-    if ((email === "admin@admin.com" && password === "admin") || (email === "user@user.com" && password === "user")) {
+    if (
+      (email === "admin@admin.com" && password === "admin") ||
+      (email === "user@user.com" && password === "user")
+    ) {
       params.email = "demo@minimals.cc";
       params.password = "@demo1";
     }
@@ -40,8 +43,10 @@ export const signInWithPassword = async ({ email, password }: SignInParams): Pro
       throw new Error("Access token not found in response");
     }
 
-    setSession(accessToken, email === "admin@admin.com");
-    socket.connect()
+    const isAdmin = email === "admin@admin.com";
+    setSession(accessToken, isAdmin);
+    sessionStorage.setItem(LOCAL_EMAIL_STORAGE_KEY, email);
+    socket.connect();
   } catch (error) {
     console.error("Error during sign in:", error);
     throw error;
@@ -80,7 +85,8 @@ export const signUp = async ({ email, password, firstName, lastName }: SignUpPar
  *************************************** */
 export const signOut = async (): Promise<void> => {
   try {
-    socket.disconnect()
+    socket.disconnect();
+    sessionStorage.removeItem(LOCAL_EMAIL_STORAGE_KEY);
     await setSession(null, false);
   } catch (error) {
     console.error("Error during sign out:", error);

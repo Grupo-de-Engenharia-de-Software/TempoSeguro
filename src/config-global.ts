@@ -52,7 +52,7 @@ export const CONFIG: ConfigValue = {
    */
   auth: {
     method: 'jwt',
-    skip: false,
+    skip: process.env.NODE_ENV !== 'production' && false,
     redirectPath: paths.map.root,
   },
   /**

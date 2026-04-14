@@ -1,74 +1,91 @@
 import { randomUUID } from "node:crypto";
 import { Server as IOServer, Socket } from "socket.io";
-import { MarkerData } from "src/services/map/map.service";
+import type { AuthUser } from "server/middleware/auth";
+import { checkRateLimit, cleanupSocket } from "server/middleware/rate-limit";
+import { ApproveMarkerSchema, NewMarkerSchema } from "server/validation";
+
+type MarkerData = {
+  position: [number, number];
+  title: string;
+  type: string;
+};
 
 type ServerMarker = MarkerData & {
-    id: string;
-    approved: boolean;
-    creatorId: string;
+  id: string;
+  approved: boolean;
+  creatorId: string;
 };
 
 const markers: ServerMarker[] = [];
 
 export const onConnect = (io: IOServer) => (socket: Socket) => {
+  const user: AuthUser = socket.data.user;
 
-    console.log("⚡️  client connected:", socket.id);
+  if (user.isAdmin) {
+    socket.join("admin");
+  }
 
-    socket.data.isAdmin = Boolean(socket.handshake.auth?.isAdmin);
-    if (socket.data.isAdmin) {
-        socket.join("admin")
-        console.log("is admin", socket.rooms)
-    }
+  const emitMarkers = (s: Socket) => {
+    const data = s.data.user.isAdmin
+      ? markers
+      : markers.filter((m) => m.approved || m.creatorId === s.data.user.id);
+    s.emit("markers", data);
+  };
 
-    socket.on("isAdmin", () => {
-        socket.data.isAdmin = true
-        socket.join("admin")
-    })
+  emitMarkers(socket);
 
-    socket.on("join-room", (room: string) => {
-        socket.join(room)
-    })
+  socket.on("get-markers", () => {
+    if (!checkRateLimit(socket.id, "get-markers")) return;
+    emitMarkers(socket);
+  });
 
-    const emitMarkers = (s: Socket) => {
-        const data = s.data.isAdmin
-            ? markers
-            : markers.filter((m) => m.approved || m.creatorId === s.id);
+  socket.on("new-marker", (raw: unknown) => {
+    if (!checkRateLimit(socket.id, "new-marker")) return;
 
-        s.emit("markers", data);
+    const parsed = NewMarkerSchema.safeParse(raw);
+    if (!parsed.success) return;
+
+    const marker = parsed.data;
+    const newMarker: ServerMarker = {
+      position: marker.position,
+      title: marker.title,
+      type: marker.type,
+      id: randomUUID(),
+      approved: user.isAdmin,
+      creatorId: user.id,
     };
 
-    emitMarkers(socket);
+    markers.push(newMarker);
 
-    // Cliente solicita lista de marcadores
-    socket.on("get-markers", () => {
-        emitMarkers(socket);
-    });
+    if (newMarker.approved) {
+      io.emit("new-alert", newMarker);
+    } else {
+      io.to("admin").emit("markers", markers);
+      io.to(socket.id).emit(
+        "markers",
+        markers.filter((m) => m.approved || m.creatorId === user.id),
+      );
+    }
+  });
 
-    // Recebe novo marcador e avisa a todos
-    socket.on("new-marker", (marker: MarkerData) => {
-        const newMarker: ServerMarker = {
-            ...marker,
-            id: randomUUID(),
-            approved: socket.data.isAdmin ?? false,
-            creatorId: socket.id,
-        };
-        markers.push(newMarker);
-        if (newMarker.approved) {
-            io.emit("new-alert", newMarker);
-        } else {
-            io.to("admin").emit("markers", markers);
-            io.to(socket.id).emit("markers", markers.filter((m) => m.approved || m.creatorId === socket.id));
-        }
-    });
+  socket.on("approve-marker", (raw: unknown) => {
+    if (!user.isAdmin) return;
+    if (!checkRateLimit(socket.id, "approve-marker")) return;
 
-    socket.on("approve-marker", (ids: string | string[]) => {
-        const arr = Array.isArray(ids) ? ids : [ids];
-        arr.forEach((id) => {
-            const found = markers.find((m) => m.id === id);
-            if (found && !found.approved) {
-                found.approved = true;
-                io.emit("new-alert", found);
-            }
-        });
-    });
-}
+    const parsed = ApproveMarkerSchema.safeParse(raw);
+    if (!parsed.success) return;
+
+    const ids = Array.isArray(parsed.data) ? parsed.data : [parsed.data];
+    for (const id of ids) {
+      const found = markers.find((m) => m.id === id);
+      if (found && !found.approved) {
+        found.approved = true;
+        io.emit("new-alert", found);
+      }
+    }
+  });
+
+  socket.on("disconnect", () => {
+    cleanupSocket(socket.id);
+  });
+};

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { useAuthContext } from "src/auth/hooks";
+import { STORAGE_KEY } from "src/auth/context/jwt/constant";
+import { paths } from "src/routes/paths";
 import { socket } from "src/socket";
 import { playBeep, playSiren } from "src/utils/audio";
 import { distanceKm } from "src/utils/geo";
@@ -51,14 +52,7 @@ const createMarker = (data: Omit<MarkerData, "alert">): MarkerData => {
 };
 
 const useInit = () => {
-  const { isAdmin } = useAuthContext();
   const userPos = useStore((state) => state.userPos);
-
-  useEffect(()=>{
-    if(isAdmin){
-      socket.emit("isAdmin")
-    }
-  },[isAdmin])
 
   useEffect(() => {
     const setMarkers = useStore.getState().setMarkers;
@@ -66,13 +60,19 @@ const useInit = () => {
     const handleMarkers = (data: Omit<MarkerData, "alert">[]) => {
       const nMarkers = data.map(createMarker);
       setMarkers(nMarkers);
-      console.log("data.map(createMarker): ", nMarkers);
     };
 
     const handleConnect = () => {
-      if (isAdmin) socket.emit("isAdmin");
-      return useStore.setState({ socketId: socket.id! });
+      useStore.setState({ socketId: socket.id! });
     };
+
+    const handleConnectError = (err: Error) => {
+      if (err.message === "AUTH_NO_TOKEN" || err.message === "AUTH_INVALID_TOKEN") {
+        sessionStorage.removeItem(STORAGE_KEY);
+        window.location.href = paths.auth.jwt.signIn;
+      }
+    };
+
     const handleNewAlert = (m: MarkerData) => {
       let existed = false;
       setMarkers((prev) => {
@@ -98,15 +98,17 @@ const useInit = () => {
     };
 
     socket.on("connect", handleConnect);
+    socket.on("connect_error", handleConnectError);
     socket.on("markers", handleMarkers);
     socket.on("new-alert", handleNewAlert);
     socket.emit("get-markers");
     return () => {
       socket.off("connect", handleConnect);
+      socket.off("connect_error", handleConnectError);
       socket.off("markers", handleMarkers);
       socket.off("new-alert", handleNewAlert);
     };
-  }, [userPos, isAdmin]);
+  }, [userPos]);
 };
 
 const useAddAlert = () => {

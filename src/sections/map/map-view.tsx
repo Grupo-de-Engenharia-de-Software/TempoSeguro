@@ -2,7 +2,9 @@
 
 import Box from "@mui/material/Box";
 import L from "leaflet";
-window.L = L;
+if (typeof window !== "undefined") {
+  (window as any).L = L;
+}
 import "leaflet.awesome-markers";
 import SecurityUpdateWarningRoundedIcon from "@mui/icons-material/SecurityUpdateWarningRounded";
 import { Button, Fab, Stack, Typography } from "@mui/material";
