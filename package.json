@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch server.ts",
-    "build": "next build --turbopack",
+    "build": "next build",
     "start": "NODE_ENV=production ts-node server.ts",
     "start:socket": "NODE_ENV=production tsx server.socket.ts",
     "rm:all": "rm -rf node_modules .next out dist build",
