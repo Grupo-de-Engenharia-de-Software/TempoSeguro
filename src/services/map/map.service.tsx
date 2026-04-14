@@ -161,10 +161,13 @@ const useMarkers = () => {
     [pending],
   );
 
+  const groupedPendingFromUser = useMemo(() => groupMarkers(pendingFromUser), [pendingFromUser]);
+
   return {
     groupedApproved,
     groupedPending,
     pendingFromUser,
+    groupedPendingFromUser,
   };
 };
 

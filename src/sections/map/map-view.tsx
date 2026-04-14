@@ -62,7 +62,7 @@ function LocateUser() {
 
 export default function MapView() {
   const { isAdmin } = useAuthContext();
-  const { groupedApproved, groupedPending, pendingFromUser } = MapService.useMarkers();
+  const { groupedApproved, groupedPending, groupedPendingFromUser } = MapService.useMarkers();
 
   MapService.useInit();
 
@@ -147,28 +147,48 @@ export default function MapView() {
             </Overlay>
           </LayersControl>
         ) : (
-          <>
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {approvedMarkers}
-            {pendingFromUser.map((m, i) => (
-              <Marker
-                key={`my-${i}`}
-                position={m.position}
-                opacity={0.5}
-                icon={L.AwesomeMarkers.icon({
-                  icon: m.alert.iconMarker,
-                  prefix: "fa",
-                  iconColor: m.alert.iconColor || "white",
-                  markerColor: m.alert.markerColor || "red",
-                })}
-              >
-                <Popup>{m.title}</Popup>
-              </Marker>
-            ))}
-          </>
+          <LayersControl position="topright">
+            <LayersControl.BaseLayer checked name="OpenStreetMap">
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+            </LayersControl.BaseLayer>
+
+            <Overlay checked name="Marcadores Aprovados">
+              <LayerGroup>{approvedMarkers}</LayerGroup>
+            </Overlay>
+
+            <Overlay checked name="Marcadores Pendentes">
+              <LayerGroup>
+                {groupedPendingFromUser.map((g, i) => (
+                  <Marker
+                    key={`my-${i}`}
+                    position={g.base.position}
+                    icon={L.AwesomeMarkers.icon({
+                      icon: g.base.alert.iconMarker,
+                      prefix: "fa",
+                      iconColor: g.base.alert.iconColor || "white",
+                      markerColor: g.base.alert.markerColor || "red",
+                    })}
+                    opacity={0.5}
+                  >
+                    <Popup>
+                      <Stack minWidth={200} gap={1}>
+                        <Typography variant="subtitle1">{g.base.title}</Typography>
+                        {g.count > 1 && (
+                          <Typography variant="caption">Repetido {g.count}x</Typography>
+                        )}
+                        <Typography variant="caption" color="text.secondary">
+                          Aguardando aprovação
+                        </Typography>
+                      </Stack>
+                    </Popup>
+                  </Marker>
+                ))}
+              </LayerGroup>
+            </Overlay>
+          </LayersControl>
         )}
 
         <LocateUser />
