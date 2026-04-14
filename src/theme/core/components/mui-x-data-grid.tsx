@@ -23,54 +23,51 @@ const MuiDataGrid: Components<Theme>['MuiDataGrid'] = {
   defaultProps: {
     slots: {
       /* Column */
-      columnSortedAscendingIcon: (props: SvgIconProps) => (
+      columnSortedAscendingIcon: (props: any) => (
         <DataGridArrowUpIcon sx={{ color: 'text.primary' }} {...props} />
       ),
-      columnSortedDescendingIcon: (props: SvgIconProps) => (
+      columnSortedDescendingIcon: (props: any) => (
         <DataGridArrowDownIcon sx={{ color: 'text.primary' }} {...props} />
       ),
-      columnUnsortedIcon: (props: SvgIconProps) => (
+      columnMenuUnsortIcon: (props: any) => (
         <DataGridArrowUpIcon
           fontSize={props.fontSize}
           className={props.className}
           sx={{ color: 'text.disabled' }}
         />
       ),
-      columnMenuIcon: (props: SvgIconProps) => <DataGridMoreIcon width={20} {...props} />,
-      columnMenuSortAscendingIcon: (props: SvgIconProps) => <DataGridArrowUpIcon {...props} />,
-      columnMenuSortDescendingIcon: (props: SvgIconProps) => <DataGridArrowDownIcon {...props} />,
-      columnMenuFilterIcon: (props: SvgIconProps) => <DataGridFilterIcon {...props} />,
-      columnMenuHideIcon: (props: SvgIconProps) => <DataGridEyeCloseIcon {...props} />,
-      columnMenuManageColumnsIcon: (props: SvgIconProps) => <DataGridEyeIcon {...props} />,
-      columnSelectorIcon: (props: SvgIconProps) => <DataGridEyeIcon {...props} />,
+      columnMenuIcon: (props: any) => <DataGridMoreIcon width={20} {...props} />,
+      columnMenuSortAscendingIcon: (props: any) => <DataGridArrowUpIcon {...props} />,
+      columnMenuSortDescendingIcon: (props: any) => <DataGridArrowDownIcon {...props} />,
+      columnMenuFilterIcon: (props: any) => <DataGridFilterIcon {...props} />,
+      columnMenuHideIcon: (props: any) => <DataGridEyeCloseIcon {...props} />,
+      columnMenuManageColumnsIcon: (props: any) => <DataGridEyeIcon {...props} />,
+      columnSelectorIcon: (props: any) => <DataGridEyeIcon {...props} />,
       /* Filter */
-      filterPanelDeleteIcon: (props: SvgIconProps) => <DataGridCloseIcon {...props} />,
-      openFilterButtonIcon: (props: SvgIconProps) => <DataGridFilterIcon {...props} />,
-      columnFilteredIcon: (props: SvgIconProps) => (
+      filterPanelDeleteIcon: (props: any) => <DataGridCloseIcon {...props} />,
+      openFilterButtonIcon: (props: any) => <DataGridFilterIcon {...props} />,
+      columnFilteredIcon: (props: any) => (
         <DataGridFilterIcon sx={{ width: 16, color: 'text.primary' }} {...props} />
       ),
       /* Density */
-      densityCompactIcon: (props: SvgIconProps) => <DataGridDensityCompactIcon {...props} />,
-      densityStandardIcon: (props: SvgIconProps) => <DataGridDensityStandardIcon {...props} />,
-      densityComfortableIcon: (props: SvgIconProps) => (
+      densityCompactIcon: (props: any) => <DataGridDensityCompactIcon {...props} />,
+      densityStandardIcon: (props: any) => <DataGridDensityStandardIcon {...props} />,
+      densityComfortableIcon: (props: any) => (
         <DataGridDensityComfortableIcon {...props} />
       ),
       /* Export */
-      exportIcon: (props: SvgIconProps) => <DataGridExportIcon {...props} />,
+      exportIcon: (props: any) => <DataGridExportIcon {...props} />,
       /*  Quick Filter */
-      quickFilterIcon: (props: SvgIconProps) => (
+      quickFilterIcon: (props: any) => (
         <DataGridSearchIcon sx={{ width: 24, height: 24, color: 'text.secondary' }} {...props} />
       ),
-      quickFilterClearIcon: (props: SvgIconProps) => <DataGridCloseIcon {...props} />,
+      quickFilterClearIcon: (props: any) => <DataGridCloseIcon {...props} />,
     },
     slotProps: {
       basePopper: { placement: 'bottom-end' },
       baseChip: { size: 'small' },
       baseSwitch: { size: 'small' },
-      baseCheckbox: { size: 'small', disableRipple: true },
-      baseInputLabel: { shrink: true },
-      baseTextField: { variant: 'outlined' },
-      baseSelect: { native: true, variant: 'outlined' },
+      baseCheckbox: { size: 'small' },
     },
   },
 

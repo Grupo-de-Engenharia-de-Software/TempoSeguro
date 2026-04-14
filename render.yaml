@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: tempo-seguro-socket
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start:socket
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: AUTH_API_BASE_URL
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false

@@ -33,9 +33,10 @@ export function checkRateLimit(socketId: string, event: string): boolean {
 }
 
 export function cleanupSocket(socketId: string): void {
-  for (const key of buckets.keys()) {
-    if (key.startsWith(`${socketId}:`)) {
+  const prefix = `${socketId}:`;
+  buckets.forEach((_v, key) => {
+    if (key.startsWith(prefix)) {
       buckets.delete(key);
     }
-  }
+  });
 }

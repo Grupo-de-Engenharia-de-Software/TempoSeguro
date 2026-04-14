@@ -47,9 +47,9 @@ function getCached(token: string): AuthUser | null {
 function setCache(token: string, user: AuthUser): void {
   if (authCache.size > 500) {
     const now = Date.now();
-    for (const [k, v] of authCache) {
+    authCache.forEach((v, k) => {
       if (now > v.expiresAt) authCache.delete(k);
-    }
+    });
   }
   authCache.set(token, { user, expiresAt: Date.now() + CACHE_TTL_MS });
 }

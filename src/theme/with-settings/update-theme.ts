@@ -22,6 +22,8 @@ export function updateCoreWithSettings(
   settings: SettingsState
 ): ThemeUpdateOptions {
   const { colorSchemes, customShadows } = theme;
+  const lightScheme = typeof colorSchemes?.light === 'object' ? colorSchemes.light : {};
+  const darkScheme = typeof colorSchemes?.dark === 'object' ? colorSchemes.dark : {};
 
   return {
     ...theme,
@@ -29,12 +31,12 @@ export function updateCoreWithSettings(
       ...colorSchemes,
       light: {
         palette: {
-          ...colorSchemes?.light?.palette,
+          ...lightScheme?.palette,
           /** [1] */
           primary: getPalettePrimary(settings.primaryColor),
           /** [2] */
           background: {
-            ...colorSchemes?.light?.palette?.background,
+            ...lightScheme?.palette?.background,
             default: getBackgroundDefault(settings.contrast),
             defaultChannel: hexToRgbChannel(getBackgroundDefault(settings.contrast)),
           },
@@ -42,7 +44,7 @@ export function updateCoreWithSettings(
       },
       dark: {
         palette: {
-          ...colorSchemes?.dark?.palette,
+          ...darkScheme?.palette,
           /** [1] */
           primary: getPalettePrimary(settings.primaryColor),
         },

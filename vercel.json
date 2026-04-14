@@ -1,0 +1,5 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build --turbopack",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- src/ public/ next.config.ts package.json"
+}
