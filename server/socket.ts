@@ -11,6 +11,7 @@ type ServerMarker = MarkerData & {
 const markers: ServerMarker[] = [];
 
 export const onConnect = (io: IOServer) => (socket: Socket) => {
+
     console.log("⚡️  client connected:", socket.id);
 
     socket.data.isAdmin = Boolean(socket.handshake.auth?.isAdmin);
@@ -22,6 +23,10 @@ export const onConnect = (io: IOServer) => (socket: Socket) => {
     socket.on("isAdmin", () => {
         socket.data.isAdmin = true
         socket.join("admin")
+    })
+
+    socket.on("join-room", (room: string) => {
+        socket.join(room)
     })
 
     const emitMarkers = (s: Socket) => {
