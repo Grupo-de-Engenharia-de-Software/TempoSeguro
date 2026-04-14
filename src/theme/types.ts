@@ -8,6 +8,7 @@ export type Theme = Omit<BaseTheme, 'palette' | 'applyStyles'> & CssVarsTheme;
 
 export type ThemeUpdateOptions = Omit<CssVarsThemeOptions, 'typography'> & {
   typography?: TypographyOptions;
+  customShadows?: Record<string, string>;
 };
 
 export type ThemeComponents = CssVarsThemeOptions['components'];
